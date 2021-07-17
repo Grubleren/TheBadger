@@ -23,9 +23,16 @@ namespace JH.Applications
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            this.linkLabel3.LinkVisited = true;
+            try
+            {
+                this.linkLabel3.LinkVisited = true;
 
-            System.Diagnostics.Process.Start(badgerResultSortedFile);
+                System.Diagnostics.Process.Start(badgerResultSortedFile);
+            }
+            catch
+            {
+
+            }
         }
 
         private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
