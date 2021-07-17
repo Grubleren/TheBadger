@@ -15,7 +15,7 @@ namespace JH.Applications
 {
     public partial class FormMain : Form
     {
-        string version = "The Badger ver. 1.5";
+        string version = "The Badger ver. 1.6";
         string path;
         string token;
         string tokenPath;
@@ -57,7 +57,7 @@ namespace JH.Applications
         string person = "";
         string notBefore = "";
         string notAfter = "";
-
+        int max;
         public class SearchCondition
         {
             public bool check;
@@ -119,9 +119,29 @@ namespace JH.Applications
             tokenPath = projectFolder + @"\DataForsyningToken.txt";
             lastUrlPath = projectFolder + @"\LastUrl.txt";
             mapCalibrationPath = projectFolder + @"\MapCalibration.txt";
-            linkLabel3.Text = badgerResultPath;
-            linkLabel1.Text = badgerResultSortedPath;
             linkLabel2.Text = resultFolder;
+            try
+            {
+                IEnumerable<string> files = Directory.EnumerateFiles(resultFolder + "\\");
+                foreach (string file in files)
+                {
+                    int count = int.Parse(file.Substring(file.Length - 8, 4));
+                    if (count > max)
+                        max = count;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Please remove files from the " + resultFolder + " folder not created by this program");
+                searching = false;
+                searchStopped = true;
+                button1.BackColor = Color.Green;
+                return;
+            }
+            badgerResultFile = badgerResultPath + string.Format("{0:0000}", max) + ".txt";
+            badgerResultSortedFile = badgerResultSortedPath + string.Format("{0:0000}", max) + ".txt";
+            Invoke(new Action(() => linkLabel3.Text = badgerResultFile));
+            Invoke(new Action(() => linkLabel1.Text = badgerResultSortedFile));
 
             StreamReader reader;
             if (File.Exists(tokenPath))
@@ -162,8 +182,7 @@ namespace JH.Applications
         {
             Size size = this.Size;
             webBrowser.Width = size.Width - webBrowser.Location.X - 50;
-            webBrowser.Height = size.Height - webBrowser.Location.Y - 100;
-            linkLabel3.Location = new Point(linkLabel3.Location.X, webBrowser.Location.Y + webBrowser.Size.Height + 25);
+            webBrowser.Height = size.Height - webBrowser.Location.Y - 50;
             Size sizeWebBrowserAfter = webBrowser.Size;
             deltaLat *= (double)sizeWebBrowserAfter.Height / sizeWebBrowserBefore.Height;
             deltaLng *= (double)sizeWebBrowserAfter.Width / sizeWebBrowserBefore.Width;
@@ -311,30 +330,13 @@ namespace JH.Applications
                 client.Encoding = Encoding.UTF8;
                 List<List<string>> items = new List<List<string>>();
                 int searchCounter = 0;
-                int max = 0;
-                try
-                {
-                    IEnumerable<string> files = Directory.EnumerateFiles(resultFolder + "\\");
-                    foreach (string file in files)
-                    {
-                        int count = int.Parse(file.Substring(file.Length - 8, 4));
-                        if (count > max)
-                            max = count;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Please remove files from the " + resultFolder + " folder not created by this program");
-                    searching = false;
-                    searchStopped = true;
-                    button1.BackColor = Color.Green;
-                    return;
-                }
                 max++;
                 badgerResultFile = badgerResultPath + string.Format("{0:0000}", max) + ".txt";
                 badgerResultSortedFile = badgerResultSortedPath + string.Format("{0:0000}", max) + ".txt";
                 badgerResultFileWriter = new StreamWriter(badgerResultFile);
                 badgerResultFileSortedWriter = new StreamWriter(badgerResultSortedFile);
+                Invoke(new Action(() => linkLabel3.Text = badgerResultFile));
+                Invoke(new Action(() => linkLabel1.Text = badgerResultSortedFile)); ;
                 WriteHeaders(DateTime.Now.ToString());
 
                 string badgerThumbnailFile = badgerThumbnailPath + string.Format("{0:0000}", max);
@@ -540,6 +542,7 @@ namespace JH.Applications
             catch (Exception e)
             {
                 MessageBox.Show("Huston, we have a problem");
+                MessageBox.Show(e.Message);
             }
             finally
             {

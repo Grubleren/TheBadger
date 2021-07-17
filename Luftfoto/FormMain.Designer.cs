@@ -103,7 +103,7 @@
             // linkLabel3
             // 
             this.linkLabel3.AutoSize = true;
-            this.linkLabel3.Location = new System.Drawing.Point(32, 700);
+            this.linkLabel3.Location = new System.Drawing.Point(32, 144);
             this.linkLabel3.Name = "linkLabel3";
             this.linkLabel3.Size = new System.Drawing.Size(49, 13);
             this.linkLabel3.TabIndex = 14;
@@ -229,10 +229,10 @@
             // 
             // webBrowser
             // 
-            this.webBrowser.Location = new System.Drawing.Point(30, 143);
+            this.webBrowser.Location = new System.Drawing.Point(30, 183);
             this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowser.Name = "webBrowser";
-            this.webBrowser.Size = new System.Drawing.Size(1000, 500);
+            this.webBrowser.Size = new System.Drawing.Size(1000, 542);
             this.webBrowser.TabIndex = 38;
             // 
             // label7
@@ -287,7 +287,7 @@
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(304, 700);
+            this.linkLabel1.Location = new System.Drawing.Point(374, 144);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(55, 13);
             this.linkLabel1.TabIndex = 44;
@@ -298,7 +298,7 @@
             // linkLabel2
             // 
             this.linkLabel2.AutoSize = true;
-            this.linkLabel2.Location = new System.Drawing.Point(574, 700);
+            this.linkLabel2.Location = new System.Drawing.Point(727, 144);
             this.linkLabel2.Name = "linkLabel2";
             this.linkLabel2.Size = new System.Drawing.Size(55, 13);
             this.linkLabel2.TabIndex = 45;

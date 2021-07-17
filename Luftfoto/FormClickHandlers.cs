@@ -9,9 +9,16 @@ namespace JH.Applications
     {
         void linkLabel3_Clicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            this.linkLabel3.LinkVisited = true;
+            try
+            {
+                this.linkLabel3.LinkVisited = true;
 
-            System.Diagnostics.Process.Start(badgerResultFile);
+                System.Diagnostics.Process.Start(badgerResultFile);
+            }
+            catch
+            {
+
+            }
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
