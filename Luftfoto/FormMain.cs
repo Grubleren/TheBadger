@@ -15,7 +15,7 @@ namespace JH.Applications
 {
     public partial class FormMain : Form
     {
-        string version = "The Badger ver. 1.6";
+        string version = "The Badger ver. 1.8";
         string path;
         string token;
         string tokenPath;
@@ -180,16 +180,23 @@ namespace JH.Applications
 
         void FormMain_SizeChanged(object sender, EventArgs e)
         {
-            Size size = this.Size;
-            webBrowser.Width = size.Width - webBrowser.Location.X - 50;
-            webBrowser.Height = size.Height - webBrowser.Location.Y - 50;
-            Size sizeWebBrowserAfter = webBrowser.Size;
-            deltaLat *= (double)sizeWebBrowserAfter.Height / sizeWebBrowserBefore.Height;
-            deltaLng *= (double)sizeWebBrowserAfter.Width / sizeWebBrowserBefore.Width;
-            int zoom;
-            double lat;
-            double lng;
-            BrowserCenter(out zoom, out lat, out lng);
+            try
+            {
+                Size size = this.Size;
+                webBrowser.Width = size.Width - webBrowser.Location.X - 50;
+                webBrowser.Height = size.Height - webBrowser.Location.Y - 50;
+                Size sizeWebBrowserAfter = webBrowser.Size;
+                deltaLat *= (double)sizeWebBrowserAfter.Height / sizeWebBrowserBefore.Height;
+                deltaLng *= (double)sizeWebBrowserAfter.Width / sizeWebBrowserBefore.Width;
+                int zoom;
+                double lat;
+                double lng;
+                BrowserCenter(out zoom, out lat, out lng);
+            }
+            catch
+            {
+
+            }
         }
 
         void Navigated(object sender, WebBrowserNavigatedEventArgs e)
@@ -207,7 +214,7 @@ namespace JH.Applications
 
                 searchCondition[0].check = checkBox1.Checked;
                 searchCondition[0].searchValue = textBox2.Text;
-                searchCondition[1].check = checkBox1.Checked;
+                searchCondition[1].check = checkBox2.Checked;
                 searchCondition[1].searchValue = textBox3.Text;
                 searchCondition[2].check = checkBox2.Checked;
                 searchCondition[2].searchValue = textBox4.Text;
@@ -526,6 +533,7 @@ namespace JH.Applications
                         WriteSearchResult("Region:.", region);
                         WriteSearchResult("Zome:.", zone);
                         WriteSearchResult("", "");
+                        badgerResultFileWriter.Flush();
                         resultList.Add(itemList);
 
                         DownloadPicture(lst[4].ChildNodes[8].FirstChild.InnerText, badgerThumbnailFile, searchCounter, idKB);

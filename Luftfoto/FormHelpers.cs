@@ -113,7 +113,7 @@ namespace JH.Applications
         {
             bool notFound = false;
             foreach (SearchCondition search in searchCondition)
-                notFound |= search.check && search.value.ToLower() != search.searchValue.ToLower();
+                notFound |= search.check && search.value.ToLower() != search.searchValue.ToLower() && search.searchValue !="";
 
             return notFound;
         }
@@ -122,6 +122,8 @@ namespace JH.Applications
         {
             WriteHeader(badgerResultFileWriter, dateTime);
             WriteHeader(badgerResultFileSortedWriter, dateTime);
+            badgerResultFileWriter.Flush();
+            badgerResultFileSortedWriter.Flush();
         }
 
         void WriteHeader(StreamWriter writer, string dateTime)
