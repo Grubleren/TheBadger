@@ -15,7 +15,7 @@ namespace JH.Applications
 {
     public partial class FormMain : Form
     {
-        string version = "The Badger ver. 1.8";
+        string version = "The Badger ver. 2.0";
         string path;
         string token;
         string tokenPath;
@@ -572,8 +572,5 @@ namespace JH.Applications
                 return string.Compare(((List<string>)l0)[15], ((List<string>)l1)[15]);
             }
         }
-
-
-
     }
 }

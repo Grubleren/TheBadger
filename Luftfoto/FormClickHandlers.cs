@@ -60,6 +60,11 @@ namespace JH.Applications
             searching = false;
         }
 
+        private void button1_Click(object sender, EventArgs e)  // stop download
+        {
+            searching = false;
+        }
+
         private void button5_Click(object sender, EventArgs e)  // browser back
         {
             urlHistory.RemoveAt(urlHistory.Count - 1);
