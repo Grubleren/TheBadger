@@ -9,10 +9,11 @@ namespace JH.Applications
         protected string[] key;
         public List<string> dataList;
 
-        public Dataforsyning(string uri, WebClient client)
+        public Dataforsyning(string type, string koordinat, int circle, string token, WebClient client)
         {
             try
             {
+                string uri = "https://api.dataforsyningen.dk/" + type + "/?cirkel=" + koordinat + "," + circle.ToString() + "&format=csv&token=" + token;
                 key = new string[0];
                 string database = client.DownloadString(new Uri(uri));
                 database = database.Replace("\n", "");
@@ -45,8 +46,8 @@ namespace JH.Applications
 
     public class DataforsyningAdresser : Dataforsyning
     {
-        public DataforsyningAdresser(string uri, WebClient client)
-            : base(uri, client)
+        public DataforsyningAdresser(string type, string koordinat, int circle, string token, WebClient client)
+            : base(type, koordinat, circle, token, client)
         {
         }
 
@@ -215,8 +216,8 @@ namespace JH.Applications
 
     public class DataforsyningSteder : Dataforsyning
     {
-        public DataforsyningSteder(string uri, WebClient client)
-            : base(uri, client)
+        public DataforsyningSteder(string type, string koordinat, int circle, string token, WebClient client)
+            : base(type, koordinat, circle, token, client)
         {
         }
 

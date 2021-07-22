@@ -15,7 +15,7 @@ namespace JH.Applications
 {
     public partial class FormMain : Form
     {
-        string version = "The Badger ver. 2.0";
+        string version = "The Badger ver. 2.4";
         string path;
         string token;
         string tokenPath;
@@ -58,6 +58,13 @@ namespace JH.Applications
         string notBefore = "";
         string notAfter = "";
         int max;
+        int circle;
+        int circle0;
+        string results = "Results";
+        string searchResult = "SearchResult";
+        string sortedResult = "SortedResult";
+        string ext;
+
         public class SearchCondition
         {
             public bool check;
@@ -90,36 +97,39 @@ namespace JH.Applications
             button6toolTip.SetToolTip(button6, "Store token");
             button7toolTip.SetToolTip(button7, "North-East");
             button8toolTip.SetToolTip(button8, "South-West");
+            button9toolTip.SetToolTip(button9, "More local search criteria");
             linkLabel3toolTip.SetToolTip(linkLabel3, "Show result file");
             linkLabel1toolTip.SetToolTip(linkLabel1, "Show sorted result file");
             linkLabel1toolTip.SetToolTip(linkLabel2, "Result folder");
+            linkLabel1toolTip.SetToolTip(linkLabel4, "User manual");
             label4toolTip.SetToolTip(label4, "Item title");
             label6toolTip.SetToolTip(label6, "Number of KB hits, max 75");
             label7toolTip.SetToolTip(label7, "Total number of hits");
             label3toolTip.SetToolTip(label3, "Hit counter, local search");
             label5toolTip.SetToolTip(label5, "Total hit counter");
-
+            label5toolTip.SetToolTip(label8, "Dataforsynig hit counter");
+            label5toolTip.SetToolTip(label9, "Circle value");
 
             label3.Text = "";
             label4.Text = "";
             label5.Text = "";
             label6.Text = "";
             label7.Text = "";
+            label8.Text = "";
+            label9.Text = "";
 
-            projectFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\TheBadger";
-            if (!Directory.Exists(projectFolder))
-                Directory.CreateDirectory(projectFolder);
-            resultFolder = projectFolder + @"\Results";
+            projectFolder = @"..";
+            resultFolder = projectFolder + @"\" + results;
             if (!Directory.Exists(resultFolder))
                 Directory.CreateDirectory(resultFolder);
-            badgerResultPath = resultFolder + @"\SearchResult";
-            badgerResultSortedPath = resultFolder + @"\SortedResult";
+            badgerResultPath = resultFolder + @"\" + searchResult;
+            badgerResultSortedPath = resultFolder + @"\" + sortedResult;
             badgerThumbnailPath = resultFolder + @"\kb_tumbnails";
             badgerFullsizePath = resultFolder + @"\kb_Fullsize";
             tokenPath = projectFolder + @"\DataForsyningToken.txt";
             lastUrlPath = projectFolder + @"\LastUrl.txt";
             mapCalibrationPath = projectFolder + @"\MapCalibration.txt";
-            linkLabel2.Text = resultFolder;
+            linkLabel2.Text = results;
             try
             {
                 IEnumerable<string> files = Directory.EnumerateFiles(resultFolder + "\\");
@@ -130,7 +140,7 @@ namespace JH.Applications
                         max = count;
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 MessageBox.Show("Please remove files from the " + resultFolder + " folder not created by this program");
                 searching = false;
@@ -138,10 +148,11 @@ namespace JH.Applications
                 button1.BackColor = Color.Green;
                 return;
             }
-            badgerResultFile = badgerResultPath + string.Format("{0:0000}", max) + ".txt";
-            badgerResultSortedFile = badgerResultSortedPath + string.Format("{0:0000}", max) + ".txt";
-            Invoke(new Action(() => linkLabel3.Text = badgerResultFile));
-            Invoke(new Action(() => linkLabel1.Text = badgerResultSortedFile));
+            ext = string.Format("{0:0000}", max) + ".txt";
+            badgerResultFile = badgerResultPath + ext;
+            badgerResultSortedFile = badgerResultSortedPath + ext;
+            Invoke(new Action(() => linkLabel3.Text = searchResult + ext));
+            Invoke(new Action(() => linkLabel1.Text = sortedResult + ext));
 
             StreamReader reader;
             if (File.Exists(tokenPath))
@@ -284,11 +295,14 @@ namespace JH.Applications
 
                 }
 
+                circle0 = int.Parse(textBox5.Text);
                 button1.BackColor = Color.Blue;
                 label3.Text = "";
                 label5.Text = "";
                 label6.Text = "";
                 label7.Text = "";
+                label8.Text = "";
+                label9.Text = "";
                 int zoom;
                 double lat;
                 double lng;
@@ -304,9 +318,9 @@ namespace JH.Applications
                 path = projectFolder + @"\temp.xml";
                 client.DownloadFileAsync(new Uri(uri), path);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                MessageBox.Show("Don't write that nonsense");
+                MessageBox.Show(e.Message);
                 searchStopped = true;
             }
         }
@@ -321,6 +335,8 @@ namespace JH.Applications
             kbObjets = KbObjects(leftMenu, out len);
             label3.Text = "";
             label4.Text = "";
+            label8.Text = "";
+            label9.Text = "";
             label6.Text = len.ToString();
             Thread thread = new Thread(new ThreadStart(ProcessDownload));
             thread.Start();
@@ -338,12 +354,13 @@ namespace JH.Applications
                 List<List<string>> items = new List<List<string>>();
                 int searchCounter = 0;
                 max++;
-                badgerResultFile = badgerResultPath + string.Format("{0:0000}", max) + ".txt";
-                badgerResultSortedFile = badgerResultSortedPath + string.Format("{0:0000}", max) + ".txt";
+                ext = string.Format("{0:0000}", max) + ".txt";
+                badgerResultFile = badgerResultPath + ext;
+                badgerResultSortedFile = badgerResultSortedPath + ext;
                 badgerResultFileWriter = new StreamWriter(badgerResultFile);
                 badgerResultFileSortedWriter = new StreamWriter(badgerResultSortedFile);
-                Invoke(new Action(() => linkLabel3.Text = badgerResultFile));
-                Invoke(new Action(() => linkLabel1.Text = badgerResultSortedFile)); ;
+                Invoke(new Action(() => linkLabel3.Text = searchResult + ext));
+                Invoke(new Action(() => linkLabel1.Text = sortedResult + ext)); ;
                 WriteHeaders(DateTime.Now.ToString());
 
                 string badgerThumbnailFile = badgerThumbnailPath + string.Format("{0:0000}", max);
@@ -367,6 +384,8 @@ namespace JH.Applications
                 Invoke(new Action(() => label7.Text = counter.ToString()));
                 node = xmlDoc.DocumentElement.FirstChild.FirstChild;
                 counter = 0;
+                int dfCounter = 0;
+
 
                 while (node != null && searching)
                 {
@@ -402,8 +421,6 @@ namespace JH.Applications
                         string zone = "";
                         string primnavn = "";
                         string koordinat = lst[3].FirstChild.InnerText;
-                        string uri1 = "https://api.dataforsyningen.dk/adresser/?cirkel=" + koordinat + ",50&format=csv&token=" + token;
-                        string uri2 = "https://api.dataforsyningen.dk/steder/?cirkel=" + koordinat + ",50&format=csv&token=" + token;
                         DataforsyningAdresser dataforsyningAdresser = null;
                         DataforsyningSteder dataforsyningSteder = null;
 
@@ -423,7 +440,20 @@ namespace JH.Applications
                         string ejerlavKB = "";
                         string kommuneKB = "";
                         string sognKB = SearchKbDb(kbdbResponse, "Sogn");
-                        dataforsyningAdresser = new DataforsyningAdresser(uri1, client);
+                        double circ = circle0;
+                        while (circ <= 100)
+                        {
+                            circle = (int)Math.Round(circ);
+                            dataforsyningAdresser = new DataforsyningAdresser("adresser", koordinat, circle, token, client);
+                            string vejn = dataforsyningAdresser.Vejnavn;
+                            if (vejn != "")
+                            {
+                                dfCounter++;
+                                break;
+                            }
+                            circ *= Math.Pow(2, 0.5);
+                        }
+
                         if (dataforsyningAdresser.dataList.Count != 0)
                         {
                             searchCondition[0].value = vejnavnKB == "" ? dataforsyningAdresser.Vejnavn : vejnavnKB;
@@ -453,7 +483,7 @@ namespace JH.Applications
                             continue;
                         }
 
-                        dataforsyningSteder = new DataforsyningSteder(uri2, client);
+                        dataforsyningSteder = new DataforsyningSteder("steder", koordinat, circle, token, client);
                         if (dataforsyningSteder.dataList.Count != 0)
                             primnavn = dataforsyningSteder.PrimNavn;
 
@@ -488,14 +518,15 @@ namespace JH.Applications
                         searchCounter++;
                         counter++;
                         string title = lst[0].InnerText;
-                        Invoke(new Action(() => { label3.Text = searchCounter.ToString(); label5.Text = counter.ToString(); label4.Text = title; }));
+                        Invoke(new Action(() => { label3.Text = searchCounter.ToString(); label5.Text = counter.ToString(); label8.Text = dfCounter.ToString(); label9.Text = circle.ToString(); label4.Text = title; }));
 
                         itemList = new ItemList();
                         WriteSearchResult("Item nr:", searchCounter.ToString());
+                        WriteSearchResult("Cirkel:", circle.ToString());
                         WriteSearchResult("Titel:", titelKB);
                         WriteSearchResult("Person:", personKB);
                         WriteSearchResult("Bygningsnavn:", bygningsnavnKB);
-                        WriteSearchResult("Sted", stedKB);
+                        WriteSearchResult("Sted:", stedKB);
                         WriteSearchResult("Vejnavn:", vejnavnKB);
                         WriteSearchResult("Husnummer:", husnummerKB);
                         WriteSearchResult("Lokalitet:", lokalitetKB);
@@ -572,5 +603,7 @@ namespace JH.Applications
                 return string.Compare(((List<string>)l0)[15], ((List<string>)l1)[15]);
             }
         }
+
+
     }
 }

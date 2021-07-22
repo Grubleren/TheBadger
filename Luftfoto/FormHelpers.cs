@@ -113,7 +113,7 @@ namespace JH.Applications
         {
             bool notFound = false;
             foreach (SearchCondition search in searchCondition)
-                notFound |= search.check && search.value.ToLower() != search.searchValue.ToLower() && search.searchValue !="";
+                notFound |= search.check && search.value.ToLower() != search.searchValue.ToLower() && search.searchValue != "";
 
             return notFound;
         }
@@ -131,6 +131,11 @@ namespace JH.Applications
             writer.WriteLine(this.Text);
             writer.WriteLine();
 
+            if (writer == badgerResultFileWriter)
+                writer.WriteLine(searchResult + ext);
+            else
+                writer.WriteLine(sortedResult + ext);
+            writer.WriteLine();
             writer.WriteLine("Search date-time: " + dateTime);
             writer.WriteLine();
 

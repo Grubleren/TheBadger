@@ -42,6 +42,7 @@
             // 
             this.textBox4.Location = new System.Drawing.Point(131, 62);
             this.textBox4.Name = "textBox4";
+            this.textBox4.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.textBox4.Size = new System.Drawing.Size(165, 20);
             this.textBox4.TabIndex = 12;
             this.textBox4.TextChanged += new System.EventHandler(this.textBox4_TextChanged);
@@ -50,6 +51,7 @@
             // 
             this.textBox3.Location = new System.Drawing.Point(443, 25);
             this.textBox3.Name = "textBox3";
+            this.textBox3.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.textBox3.Size = new System.Drawing.Size(165, 20);
             this.textBox3.TabIndex = 10;
             this.textBox3.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
@@ -80,6 +82,7 @@
             // 
             this.textBox2.Location = new System.Drawing.Point(131, 27);
             this.textBox2.Name = "textBox2";
+            this.textBox2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.textBox2.Size = new System.Drawing.Size(165, 20);
             this.textBox2.TabIndex = 8;
             this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
@@ -88,6 +91,7 @@
             // 
             this.textBox5.Location = new System.Drawing.Point(443, 60);
             this.textBox5.Name = "textBox5";
+            this.textBox5.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.textBox5.Size = new System.Drawing.Size(165, 20);
             this.textBox5.TabIndex = 16;
             this.textBox5.TextChanged += new System.EventHandler(this.textBox5_TextChanged);
