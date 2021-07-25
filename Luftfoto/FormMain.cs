@@ -15,7 +15,7 @@ namespace JH.Applications
 {
     public partial class FormMain : Form
     {
-        string version = "The Badger ver. 2.4";
+        string version = "The Badger ver. 2.6";
         string path;
         string token;
         string tokenPath;
@@ -59,11 +59,12 @@ namespace JH.Applications
         string notAfter = "";
         int max;
         int circle;
-        int circle0;
+        int maxCircle;
         string results = "Results";
         string searchResult = "SearchResult";
         string sortedResult = "SortedResult";
         string ext;
+        string exttxt;
 
         public class SearchCondition
         {
@@ -89,26 +90,26 @@ namespace JH.Applications
         private void FormMain_Load(object sender, EventArgs e)
         {
             this.Text = version;
-            button1toolTip.SetToolTip(button1, "Status indicator");
-            button2toolTip.SetToolTip(button2, "Download items with images");
-            button3toolTip.SetToolTip(button3, "Download items without images");
+            label3toolTip.SetToolTip(label3, "Hit tæller, finsøgning");
+            label4toolTip.SetToolTip(label4, "Hit titel");
+            label5toolTip.SetToolTip(label5, "Total hit tæller");
+            label6toolTip.SetToolTip(label6, "Antallet af of KB hits, max 75");
+            label7toolTip.SetToolTip(label7, "Total antal hits");
+            label8toolTip.SetToolTip(label8, "Dataforsynig hit tæller");
+            label9toolTip.SetToolTip(label9, "Cirkel værdi");
+            linkLabel3toolTip.SetToolTip(linkLabel3, "Vis kb_FullSize folder");
+            linkLabel1toolTip.SetToolTip(linkLabel1, "Vis sortet resultatfil");
+            linkLabel4toolTip.SetToolTip(linkLabel4, "Brugsanvisning");
+            comboBox1toolTip.SetToolTip(comboBox1, "Filnavngivnings vælger");
+            button1toolTip.SetToolTip(button1, "Status indikator");
+            button2toolTip.SetToolTip(button2, "Download hits med billeder");
+            button3toolTip.SetToolTip(button3, "Download hits uden billeder");
             button4toolTip.SetToolTip(button4, "Stop download");
-            button5toolTip.SetToolTip(button5, "Browse back");
-            button6toolTip.SetToolTip(button6, "Store token");
-            button7toolTip.SetToolTip(button7, "North-East");
-            button8toolTip.SetToolTip(button8, "South-West");
-            button9toolTip.SetToolTip(button9, "More local search criteria");
-            linkLabel3toolTip.SetToolTip(linkLabel3, "Show result file");
-            linkLabel1toolTip.SetToolTip(linkLabel1, "Show sorted result file");
-            linkLabel1toolTip.SetToolTip(linkLabel2, "Result folder");
-            linkLabel1toolTip.SetToolTip(linkLabel4, "User manual");
-            label4toolTip.SetToolTip(label4, "Item title");
-            label6toolTip.SetToolTip(label6, "Number of KB hits, max 75");
-            label7toolTip.SetToolTip(label7, "Total number of hits");
-            label3toolTip.SetToolTip(label3, "Hit counter, local search");
-            label5toolTip.SetToolTip(label5, "Total hit counter");
-            label5toolTip.SetToolTip(label8, "Dataforsynig hit counter");
-            label5toolTip.SetToolTip(label9, "Circle value");
+            button5toolTip.SetToolTip(button5, "Browse tibage");
+            button6toolTip.SetToolTip(button6, "Gem token");
+            button7toolTip.SetToolTip(button7, "Nord-Øst");
+            button8toolTip.SetToolTip(button8, "Syd-Vest");
+            button9toolTip.SetToolTip(button9, "Flere  finsøgnings kriterier");
 
             label3.Text = "";
             label4.Text = "";
@@ -129,7 +130,6 @@ namespace JH.Applications
             tokenPath = projectFolder + @"\DataForsyningToken.txt";
             lastUrlPath = projectFolder + @"\LastUrl.txt";
             mapCalibrationPath = projectFolder + @"\MapCalibration.txt";
-            linkLabel2.Text = results;
             try
             {
                 IEnumerable<string> files = Directory.EnumerateFiles(resultFolder + "\\");
@@ -148,11 +148,12 @@ namespace JH.Applications
                 button1.BackColor = Color.Green;
                 return;
             }
-            ext = string.Format("{0:0000}", max) + ".txt";
-            badgerResultFile = badgerResultPath + ext;
-            badgerResultSortedFile = badgerResultSortedPath + ext;
-            Invoke(new Action(() => linkLabel3.Text = searchResult + ext));
-            Invoke(new Action(() => linkLabel1.Text = sortedResult + ext));
+            ext = string.Format("{0:0000}", max);
+            exttxt = ext + ".txt";
+            badgerResultFile = badgerResultPath + exttxt;
+            badgerResultSortedFile = badgerResultSortedPath + exttxt;
+            Invoke(new Action(() => linkLabel3.Text = "kb_FullSize" + ext));
+            Invoke(new Action(() => linkLabel1.Text = sortedResult + exttxt));
 
             StreamReader reader;
             if (File.Exists(tokenPath))
@@ -295,7 +296,17 @@ namespace JH.Applications
 
                 }
 
-                circle0 = int.Parse(textBox5.Text);
+                maxCircle = int.Parse(textBox5.Text);
+                if (maxCircle < 4)
+                {
+                    maxCircle = 4;
+                    textBox5.Text = "4";
+                }
+                if (maxCircle > 200)
+                {
+                    maxCircle = 200;
+                    textBox5.Text = "200";
+                }
                 button1.BackColor = Color.Blue;
                 label3.Text = "";
                 label5.Text = "";
@@ -354,13 +365,14 @@ namespace JH.Applications
                 List<List<string>> items = new List<List<string>>();
                 int searchCounter = 0;
                 max++;
-                ext = string.Format("{0:0000}", max) + ".txt";
-                badgerResultFile = badgerResultPath + ext;
-                badgerResultSortedFile = badgerResultSortedPath + ext;
+                ext = string.Format("{0:0000}", max);
+                exttxt = ext + ".txt";
+                badgerResultFile = badgerResultPath + exttxt;
+                badgerResultSortedFile = badgerResultSortedPath + exttxt;
                 badgerResultFileWriter = new StreamWriter(badgerResultFile);
                 badgerResultFileSortedWriter = new StreamWriter(badgerResultSortedFile);
-                Invoke(new Action(() => linkLabel3.Text = searchResult + ext));
-                Invoke(new Action(() => linkLabel1.Text = sortedResult + ext)); ;
+                Invoke(new Action(() => linkLabel3.Text = "kb_FullSize" + ext));
+                Invoke(new Action(() => linkLabel1.Text = sortedResult + exttxt)); ;
                 WriteHeaders(DateTime.Now.ToString());
 
                 string badgerThumbnailFile = badgerThumbnailPath + string.Format("{0:0000}", max);
@@ -440,8 +452,8 @@ namespace JH.Applications
                         string ejerlavKB = "";
                         string kommuneKB = "";
                         string sognKB = SearchKbDb(kbdbResponse, "Sogn");
-                        double circ = circle0;
-                        while (circ <= 100)
+                        double circ = 4;
+                        while (circ <= maxCircle)
                         {
                             circle = (int)Math.Round(circ);
                             dataforsyningAdresser = new DataforsyningAdresser("adresser", koordinat, circle, token, client);
@@ -453,6 +465,7 @@ namespace JH.Applications
                             }
                             circ *= Math.Pow(2, 0.5);
                         }
+                        circle = circ > maxCircle ? maxCircle : circle;
 
                         if (dataforsyningAdresser.dataList.Count != 0)
                         {
@@ -521,6 +534,8 @@ namespace JH.Applications
                         Invoke(new Action(() => { label3.Text = searchCounter.ToString(); label5.Text = counter.ToString(); label8.Text = dfCounter.ToString(); label9.Text = circle.ToString(); label4.Text = title; }));
 
                         itemList = new ItemList();
+                        WriteSearchResult("________________________________________________________________________________", "");
+                        WriteSearchResult("","");
                         WriteSearchResult("Item nr:", searchCounter.ToString());
                         WriteSearchResult("Cirkel:", circle.ToString());
                         WriteSearchResult("Titel:", titelKB);
@@ -567,8 +582,8 @@ namespace JH.Applications
                         badgerResultFileWriter.Flush();
                         resultList.Add(itemList);
 
-                        DownloadPicture(lst[4].ChildNodes[8].FirstChild.InnerText, badgerThumbnailFile, searchCounter, idKB);
-                        DownloadPicture(lst[4].ChildNodes[7].FirstChild.InnerText, badgerFullsizeFile, searchCounter, idKB);
+                        DownloadPicture(lst[4].ChildNodes[8].FirstChild.InnerText, badgerThumbnailFile, searchCounter, vejnavnKB, husnummerKB, postnummerKB, byKB,aarKB, idKB, bygningsnavnKB);
+                        DownloadPicture(lst[4].ChildNodes[7].FirstChild.InnerText, badgerFullsizeFile, searchCounter, vejnavnKB, husnummerKB, postnummerKB, byKB, aarKB, idKB, bygningsnavnKB);
 
                     }
                     node = node.NextSibling;

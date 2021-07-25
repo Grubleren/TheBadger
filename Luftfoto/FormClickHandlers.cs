@@ -13,7 +13,8 @@ namespace JH.Applications
             {
                 this.linkLabel3.LinkVisited = true;
 
-                System.Diagnostics.Process.Start(badgerResultFile);
+                string s = resultFolder + @"\kb_FullSize" + ext;
+                System.Diagnostics.Process.Start(s);
             }
             catch
             {
@@ -33,14 +34,6 @@ namespace JH.Applications
             {
 
             }
-        }
-
-        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            this.linkLabel3.LinkVisited = true;
-
-            System.Diagnostics.Process.Start("explorer.exe", resultFolder);
-
         }
 
         private void linkLabel4_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -144,16 +137,6 @@ namespace JH.Applications
         private void textBox5_TextChanged(object sender, EventArgs e)
         {
             circle = int.Parse(textBox5.Text);
-            if (circle < 1)
-            {
-                circle = 1;
-                textBox5.Text = "1";
-            }
-            if (circle > 100)
-            {
-                circle = 100;
-                textBox5.Text = "100";
-            }
 
         }
 

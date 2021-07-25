@@ -36,15 +36,47 @@ namespace JH.Applications
             int i1 = xml.IndexOf("col-xs-8") + 8 + 2;
             xml = xml.Substring(i1);
             int i2 = xml.IndexOf("<");
-            return xml.Substring(0, i2).Replace("\r\n", "");
+            xml = xml.Substring(0, i2).Replace("\r\n", "");
+            xml = RemoveLeadingAndTrailingBlanks(xml);
+            return xml;
         }
 
-        void DownloadPicture(string link, string file, int counter, string id)
+        string RemoveLeadingAndTrailingBlanks(string s)
+        {
+            while (s.StartsWith(" "))
+                s = s.Substring(1);
+            while (s.EndsWith(" "))
+                s = s.Substring(0, s.Length - 1);
+            return s;
+        }
+
+        void DownloadPicture(string link, string file, int counter, string vej, string husnummer, string postnummer, string by, string aar, string id, string bygning)
         {
             if (!downloadPictures)
                 return;
             WebClient client = new WebClient();
-            client.DownloadFile(link, file + "/" + id.Substring(0, id.Length - 4) + ".jpg");
+            int selectedIndex = 0;
+            Invoke(new Action(() => selectedIndex = comboBox1.SelectedIndex));
+            switch (selectedIndex)
+            {
+
+                default:
+                case 0:
+                    client.DownloadFile(link, file + "/" + id.Substring(0, id.Length - 4) + ".jpg");
+                    break;
+                case 1:
+                    client.DownloadFile(link, file + "/" + vej + " " + husnummer + ", " + postnummer + " " + by + " - " + aar + " - " + id.Substring(0, id.Length - 4) + ".jpg");
+                    break;
+                case 2:
+                    client.DownloadFile(link, file + "/" + vej + " " + husnummer + ", " + postnummer + " - " + aar + " - " + id.Substring(0, id.Length - 4) + ".jpg");
+                    break;
+                case 3:
+                    client.DownloadFile(link, file + "/" + vej + " " + husnummer + " - " + aar + " - " + id.Substring(0, id.Length - 4) + ".jpg");
+                    break;
+                case 4:
+                    client.DownloadFile(link, file + "/" + vej + " " + husnummer + " - " + aar + " - " + bygning + " - " + id.Substring(0, id.Length - 4) + ".jpg");
+                    break;
+            }
         }
 
         void WriteSearchResult(string key, string data)
@@ -132,9 +164,9 @@ namespace JH.Applications
             writer.WriteLine();
 
             if (writer == badgerResultFileWriter)
-                writer.WriteLine(searchResult + ext);
+                writer.WriteLine(searchResult + exttxt);
             else
-                writer.WriteLine(sortedResult + ext);
+                writer.WriteLine(sortedResult + exttxt);
             writer.WriteLine();
             writer.WriteLine("Search date-time: " + dateTime);
             writer.WriteLine();
