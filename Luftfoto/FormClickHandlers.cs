@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
@@ -9,11 +10,12 @@ namespace JH.Applications
     {
         void linkLabel3_Clicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
+            Trace.WriteLine(string.Format("Fullsize path clicked"));
             try
             {
                 this.linkLabel3.LinkVisited = true;
 
-                string s = resultFolder + @"\kb_FullSize" + ext;
+                string s = badgerFullsizePath + ext;
                 System.Diagnostics.Process.Start(s);
             }
             catch
@@ -24,11 +26,12 @@ namespace JH.Applications
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
+            Trace.WriteLine(string.Format("Sorted path clicked"));
             try
             {
                 this.linkLabel3.LinkVisited = true;
-
-                System.Diagnostics.Process.Start(badgerResultSortedFile);
+                string s = badgerFullsizePath +ext+ @"\" + sortedResult + exttxt;
+                System.Diagnostics.Process.Start(s);
             }
             catch
             {
@@ -38,6 +41,7 @@ namespace JH.Applications
 
         private void linkLabel4_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
+            Trace.WriteLine(string.Format("Manual clicked"));
             this.linkLabel3.LinkVisited = true;
 
             System.Diagnostics.Process.Start(@"..\theBadger.pdf");
@@ -46,28 +50,33 @@ namespace JH.Applications
 
         private void button2_Click(object sender, EventArgs e)  // download with pictures
         {
+            Trace.WriteLine(string.Format("Download with pictures"));
             downloadPictures = true;
             Download();
         }
 
         private void button3_Click(object sender, EventArgs e)  // download without pictures
         {
+            Trace.WriteLine(string.Format("Download without pictures"));
             downloadPictures = false;
             Download();
         }
 
         private void button4_Click(object sender, EventArgs e)  // stop download
         {
+            Trace.WriteLine(string.Format("Stop download"));
             searching = false;
         }
 
         private void button1_Click(object sender, EventArgs e)  // stop download
         {
+            Trace.WriteLine(string.Format("Stop download"));
             searching = false;
         }
 
         private void button5_Click(object sender, EventArgs e)  // browser back
         {
+            Trace.WriteLine(string.Format("Browse back"));
             urlHistory.RemoveAt(urlHistory.Count - 1);
             string src = urlHistory[urlHistory.Count - 1];
             string dst = ToUTF8(src);
@@ -95,6 +104,8 @@ namespace JH.Applications
             writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat));
             writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng));
             writer.Close();
+            Trace.WriteLine(string.Format(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat)));
+            Trace.WriteLine(string.Format(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng)));
         }
 
         private void button8_Click(object sender, EventArgs e)  // calibrate sw
@@ -108,7 +119,8 @@ namespace JH.Applications
             writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat));
             writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng));
             writer.Close();
-
+            Trace.WriteLine(string.Format(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat)));
+            Trace.WriteLine(string.Format(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng)));
         }
 
         private void button9_Click(object sender, EventArgs e)

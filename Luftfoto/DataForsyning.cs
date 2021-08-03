@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
+using System.Threading;
 
 namespace JH.Applications
 {
@@ -15,11 +17,37 @@ namespace JH.Applications
             {
                 string uri = "https://api.dataforsyningen.dk/" + type + "/?cirkel=" + koordinat + "," + circle.ToString() + "&format=csv&token=" + token;
                 key = new string[0];
-                string database = client.DownloadString(new Uri(uri));
+
+
+                string database = "";
+                int ntry = 10;
+                bool responseFailure = true;
+                while (ntry > 0 && responseFailure)
+                {
+                    responseFailure = false;
+                    try
+                    {
+
+                        database = client.DownloadString(uri);
+                    }
+                    catch
+                    {
+                        ntry--;
+                        database = "";
+                        responseFailure = true;
+                        Trace.WriteLine(string.Format("Dataforsyning response failure {0}", ntry));
+                        Trace.WriteLine(string.Format("URI: {0}", uri));
+                        Thread.Sleep(200);
+                    }
+                }
+                if (responseFailure)
+                {
+                    Trace.WriteLine("Dataforsyning fatal response failure - Give up on: " + uri);
+                }
                 database = database.Replace("\n", "");
                 string[] split = database.Split(new char[] { '\r' });
                 dataList = new List<string>();
-                if (split.Length == 2)
+                if (split == null || split.Length == 2)
                     return;
                 key = split[0].Split(new char[] { ',' });
                 string[] data = split[split.Length - 2].Split(new char[] { '\"' });

@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -317,7 +318,7 @@
             // 
             // button7
             // 
-            this.button7.Location = new System.Drawing.Point(952, 98);
+            this.button7.Location = new System.Drawing.Point(989, 97);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(41, 24);
             this.button7.TabIndex = 42;
@@ -327,7 +328,7 @@
             // 
             // button8
             // 
-            this.button8.Location = new System.Drawing.Point(990, 98);
+            this.button8.Location = new System.Drawing.Point(950, 97);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(41, 24);
             this.button8.TabIndex = 43;
@@ -380,14 +381,14 @@
             this.webBrowser.Location = new System.Drawing.Point(30, 171);
             this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowser.Name = "webBrowser";
-            this.webBrowser.Size = new System.Drawing.Size(1000, 554);
+            this.webBrowser.Size = new System.Drawing.Size(1000, 555);
             this.webBrowser.TabIndex = 38;
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1048, 737);
+            this.ClientSize = new System.Drawing.Size(1059, 751);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label3);
@@ -419,6 +420,7 @@
             this.Controls.Add(this.checkBox2);
             this.Controls.Add(this.checkBox3);
             this.Controls.Add(this.webBrowser);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormMain";
             this.Load += new System.EventHandler(this.FormMain_Load);
             this.SizeChanged += new System.EventHandler(this.FormMain_SizeChanged);
