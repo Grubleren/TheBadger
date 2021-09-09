@@ -21,6 +21,20 @@ namespace JH.Applications
         }
 
 
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            form.searchConditionShadow[0].searchValue = ((TextBox)sender).Text;
+        }
+
+        private void textBox6_TextChanged(object sender, EventArgs e)
+        {
+            form.searchConditionShadow[1].searchValue = ((TextBox)sender).Text;
+        }
+
+        private void textBox7_TextChanged(object sender, EventArgs e)
+        {
+            form.searchConditionShadow[2].searchValue = ((TextBox)sender).Text;
+        }
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
             form.searchConditionShadow[3].searchValue = ((TextBox)sender).Text;
@@ -42,6 +56,21 @@ namespace JH.Applications
         }
 
 
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            form.searchConditionShadow[0].check = checkBox1.Checked;
+        }
+
+        private void checkBox6_CheckedChanged(object sender, EventArgs e)
+        {
+            form.searchConditionShadow[1].check = checkBox6.Checked;
+        }
+
+        private void checkBox7_CheckedChanged(object sender, EventArgs e)
+        {
+            form.searchConditionShadow[2].check = checkBox7.Checked;
+        }
+
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
             form.searchConditionShadow[3].check = checkBox2.Checked;
@@ -61,5 +90,6 @@ namespace JH.Applications
         {
             form.searchConditionShadow[6].check = checkBox5.Checked;
         }
+
     }
 }

@@ -9,406 +9,191 @@ using System.Text;
 using System.Threading;
 using System.Xml;
 using System.Globalization;
-using System.Collections;
 using System.Diagnostics;
+using CefSharp.WinForms;
+using CefSharp;
+using System.Threading.Tasks;
 
 namespace JH.Applications
 {
     public partial class FormMain : Form
     {
-        string version = "The Badger ver. 3.1";
-        string path;
-        string token;
-        string tokenPath;
-        string mapCalibrationPath;
-        string projectFolder;
-        string resultFolder;
-        string badgerResultFile;
-        string badgerResultSortedFile;
-        string badgerFullsizePath;
-        StreamWriter badgerResultFileWriter;
-        StreamWriter badgerResultFileSortedWriter;
-        bool searching;
-        bool searchStopped = true;
-        bool downloadPictures;
-        string kbObjets;
-        List<string> urlHistory;
-        double neLat;
-        double neLng;
-        double swLat;
-        double swLng;
-        int neZoom;
-        int swZoom;
-        double deltaLat = 300;
-        double deltaLng = 1360;
-        Size sizeWebBrowserBefore;
-        List<ItemList> resultList;
-        ItemList itemList;
-        string lastUrlPath;
-        string lastUrlString;
-        SearchDialog searchDialog;
-        public SearchCondition[] searchCondition;
-        public SearchCondition[] searchConditionShadow;
-        string freetext = "";
-        string location = "";
-        string building = "";
-        string person = "";
-        string notBefore = "";
-        string notAfter = "";
-        int max;
-        int circle;
-        int maxCircle;
-        string results = "Results";
-        string luftfoto = "Luftfoto";
-        string searchResult = "SearchResult";
-        string sortedResult = "Metadata";
-        string ext;
-        string exttxt;
-        bool downloadedString;
-        WebClient client;
+        string version = "The Badger ver. 5.4";
 
-        public class SearchCondition
-        {
-            public bool check;
-            public string value;
-            public string searchValue;
-        }
         public FormMain()
         {
             InitializeComponent();
+            webBrowser = new ChromiumWebBrowser("");
+            Controls.Add(webBrowser);
+
+            SetupWebbrowser();
+
+            Cef.EnableHighDPISupport();
+
             urlHistory = new List<string>();
             resultList = new List<ItemList>();
-            searchCondition = new SearchCondition[7];
-            searchConditionShadow = new SearchCondition[7];
+            searchCondition = new SearchCondition[9];
+            searchConditionShadow = new SearchCondition[9];
             for (int i = 0; i < searchCondition.Length; i++)
                 searchCondition[i] = new SearchCondition();
             for (int i = 0; i < searchConditionShadow.Length; i++)
                 searchConditionShadow[i] = new SearchCondition();
             searchDialog = new SearchDialog(this);
 
+            Trace.AutoFlush = true;
         }
 
         private void FormMain_Load(object sender, EventArgs e)
         {
             this.Text = version;
-            label3toolTip.SetToolTip(label3, "Hit tæller, finsøgning");
-            label4toolTip.SetToolTip(label4, "Hit titel");
-            label5toolTip.SetToolTip(label5, "Total hit tæller");
-            label6toolTip.SetToolTip(label6, "Antallet af of KB hits, max 75");
-            label7toolTip.SetToolTip(label7, "Total antal hits");
-            label8toolTip.SetToolTip(label8, "Dataforsynig hit tæller");
-            label9toolTip.SetToolTip(label9, "Cirkel værdi");
-            linkLabel3toolTip.SetToolTip(linkLabel3, "Vis kb_FullSize folder");
-            linkLabel1toolTip.SetToolTip(linkLabel1, "Vis sortet resultatfil");
-            linkLabel4toolTip.SetToolTip(linkLabel4, "Brugsanvisning");
-            comboBox1toolTip.SetToolTip(comboBox1, "Filnavngivnings vælger");
-            button1toolTip.SetToolTip(button1, "Status indikator");
-            button2toolTip.SetToolTip(button2, "Download hits med billeder");
-            button3toolTip.SetToolTip(button3, "Download hits uden billeder");
-            button4toolTip.SetToolTip(button4, "Stop download");
-            button5toolTip.SetToolTip(button5, "Browse tibage");
-            button6toolTip.SetToolTip(button6, "Gem token");
-            button7toolTip.SetToolTip(button7, "Nord-Øst");
-            button8toolTip.SetToolTip(button8, "Syd-Vest");
-            button9toolTip.SetToolTip(button9, "Flere  finsøgnings kriterier");
 
-            label3.Text = "";
-            label4.Text = "";
-            label5.Text = "";
-            label6.Text = "";
-            label7.Text = "";
-            label8.Text = "";
-            label9.Text = "";
+            SetupTooltips();
 
-            Trace.AutoFlush = true;
+            InitializeLabels();
+            label10.Text = "";
 
-            projectFolder = @"..";
-            resultFolder = projectFolder + @"\" + results;
-            if (!Directory.Exists(resultFolder))
-                Directory.CreateDirectory(resultFolder);
-            Trace.Listeners.Add((new  MyTraceListener(new StreamWriter(projectFolder+@"\log.log"))));
-            badgerFullsizePath = resultFolder + @"\" + luftfoto;
-            tokenPath = projectFolder + @"\DataForsyningToken.txt";
-            lastUrlPath = projectFolder + @"\LastUrl.txt";
-            mapCalibrationPath = projectFolder + @"\MapCalibration_" + Environment.GetEnvironmentVariable("ComputerName") + ".txt";
-            IEnumerable<string> files = Directory.EnumerateDirectories(resultFolder + "\\");
-            foreach (string file in files)
-            {
-                int count;
-                try
-                {
-                    count = int.Parse(file.Substring(file.Length - 4, 4));
-                }
-                catch
-                {
-                    count = 0;
-                }
-                if (count > max)
-                    max = count;
-            }
+            SetupFilePaths();
 
-            ext = string.Format("{0:0000}", max);
-            exttxt = ext + ".txt";
-            Invoke(new Action(() => linkLabel3.Text = luftfoto + ext));
-            Invoke(new Action(() => linkLabel1.Text = sortedResult + exttxt));
+            StreamReader stream = new StreamReader(projectFolder + @"\setup.txt");
+            string s = stream.ReadLine();
+            int i0 = s.IndexOf("=");
+            maxCircle = int.Parse(s.Substring(i0 + 1));
+            textBox5.Text = maxCircle.ToString();
+            stream.Close();
 
-            StreamReader reader;
-            if (File.Exists(tokenPath))
-            {
-                reader = new StreamReader(tokenPath);
-                token = reader.ReadLine();
-                reader.Close();
-                textBox1.Text = token;
-            }
-
-            if (File.Exists(mapCalibrationPath))
-            {
-                reader = new StreamReader(mapCalibrationPath);
-                deltaLat = double.Parse(reader.ReadLine(), CultureInfo.InvariantCulture);
-                deltaLng = double.Parse(reader.ReadLine(), CultureInfo.InvariantCulture);
-                reader.Close();
-                Trace.WriteLine("Map calibration:");
-                Trace.WriteLine(string.Format(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat)));
-                Trace.WriteLine(string.Format(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng)));
-
-            }
-            else
-            {
-                Trace.WriteLine("Map not calibrated");
-                MessageBox.Show("Kortet er ikke kalibreret.\n\nSe brugsanvisningen.");
-            }
-
-            if (File.Exists(lastUrlPath))
-            {
-                reader = new StreamReader(lastUrlPath);
-                lastUrlString = reader.ReadLine();
-                reader.Close();
-            }
-            else
-                lastUrlString = "http://www5.kb.dk/danmarksetfraluften/?q_fritekst=S%c3%B8nderladevej&q_stednavn=&q_bygningsnavn=&q_person=&notBefore=1890&notAfter=2015&category=subject203&itemType=all&thumbnailSize=&correctness=&thumbnailSize=&sortby=&sortorder=#zoom=9&lat=57.34&lng=9.27";
-
-            client = new WebClient();
-            downloadedString = false;
-            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(DownloadStringCompleted);
-            client.DownloadStringAsync(new Uri(lastUrlString));
-            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-            timer.Interval = 5000;
-            timer.Enabled = true;
-            timer.Tick += timer_Tick;
-            timer.Start();
+            webClient = new WebClient();
+            kbServerRunning = false;
+            webClient.DownloadStringCompleted -= new DownloadStringCompletedEventHandler(KBServerTestCompleted);
+            webClient.DownloadStringCompleted += new DownloadStringCompletedEventHandler(KBServerTestCompleted);
+            webClient.DownloadStringAsync(new Uri(lastUrlString));
+            System.Windows.Forms.Timer kbServerRunningTimer = new System.Windows.Forms.Timer();
+            kbServerRunningTimer.Interval = 5000;
+            kbServerRunningTimer.Enabled = true;
+            kbServerRunningTimer.Tick += timer_Tick;
+            kbServerRunningTimer.Start();
         }
 
         void timer_Tick(object sender, EventArgs e)
         {
             ((System.Windows.Forms.Timer)sender).Stop();
-            if (!downloadedString)
+            if (!kbServerRunning)
             {
-                client.CancelAsync();
+                webClient.CancelAsync();
             }
         }
 
-        void DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
+        void KBServerTestCompleted(object sender, DownloadStringCompletedEventArgs e)
         {
-            client.Dispose();
+            webClient.Dispose();
             if (e.Cancelled)
             {
-                webBrowser.Navigate("file:///"+Environment.CurrentDirectory+"/../html.html");
+                webBrowser.Load("file:///" + Environment.CurrentDirectory + "/../kbServerDown.html");
+                Trace.WriteLine("KB server not responding");
                 return;
             }
-            downloadedString = true;
-            webBrowser.Navigated += new WebBrowserNavigatedEventHandler(Navigated);
-            webBrowser.Navigate(lastUrlString);
-            webBrowser.Show();
-            urlHistory.Add(lastUrlString);
+
+            webClient.DownloadStringCompleted -= new DownloadStringCompletedEventHandler(KBServerTestCompleted);
+
+            kbServerRunning = true;
+            webBrowser.LoadingStateChanged -= new EventHandler<LoadingStateChangedEventArgs>(Navigated);
+            webBrowser.LoadingStateChanged += new EventHandler<LoadingStateChangedEventArgs>(Navigated);
+            webBrowser.Load(lastUrlString);
+            addToUrlHistory = true;
             Size size = this.Size;
-            webBrowser.Width = size.Width - webBrowser.Location.X - 50;
-            webBrowser.Height = size.Height - webBrowser.Location.Y - 50;
-            sizeWebBrowserBefore = webBrowser.Size;
-         }
-
-        void FormMain_SizeChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                Size size = this.Size;
-                webBrowser.Width = size.Width - webBrowser.Location.X - 50;
-                webBrowser.Height = size.Height - webBrowser.Location.Y - 50;
-                Size sizeWebBrowserAfter = webBrowser.Size;
-                deltaLat *= (double)sizeWebBrowserAfter.Height / sizeWebBrowserBefore.Height;
-                deltaLng *= (double)sizeWebBrowserAfter.Width / sizeWebBrowserBefore.Width;
-                sizeWebBrowserBefore = sizeWebBrowserAfter;
-                int zoom;
-                double lat;
-                double lng;
-                BrowserCenter(out zoom, out lat, out lng);
-            }
-            catch
-            {
-
-            }
+            Trace.WriteLine("Form width: " + size.Width.ToString());
+            Trace.WriteLine("Form height: " + size.Height.ToString());
+            Size sizeWebBrowserAfter = new Size(size.Width - webBrowser.Location.X - 50, size.Height - webBrowser.Location.Y - 50);
+            Trace.WriteLine("sizeWebBrowserAfter width: " + sizeWebBrowserAfter.Width.ToString());
+            Trace.WriteLine("sizeWebBrowserAfter height: " + sizeWebBrowserAfter.Height.ToString());
+            webBrowser.Size = sizeWebBrowserAfter;
+            sizeWebBrowserBefore = sizeWebBrowserAfter;
         }
 
-        void Navigated(object sender, WebBrowserNavigatedEventArgs e)
+        void DownloadInit()
         {
-            urlHistory.Add(webBrowser.Url.ToString());
-        }
-
-        void Download()
-        {
-            if (textBox1.Text.Length < 32)
+            if (textBox1.Text.Length != 32)
             {
                 Trace.WriteLine("Invalid token");
                 MessageBox.Show("Ugyldig token:\nProgrammet benytter dataforsyningen.dk til indhentning af oplysninger om f. eks. en adresse svarende til en bestemt geografisk koordinat. Det er derfor nødvendigt for at bruge programmet at oprette sig som bruger af dataforsyningen.dk https://dataforsyningen.dk/ og generere en token. Denne token kopieres til The Badger i øverste venstre hjørne og man gemmer token ved at trykke på knappen mærket ’G’. Herefter skal man ikke tænke mere p˚a token. Det er ikke nødvendigt at være tilmeldt som bruger af Det Kongelige Bibliotek.");
             }
             else
             {
-                try
-                {
-                    if (!searchStopped)
-                        return;
-                    searchStopped = false;
+                if (!searchStopped)
+                    return;
+                searchStopped = false;
 
-                    Trace.WriteLine(string.Format("Preparing fastsearch"));
+                Trace.WriteLine(string.Format("Preparing fastsearch"));
 
-                    searchCondition[0].check = checkBox1.Checked;
-                    searchCondition[0].searchValue = textBox2.Text;
-                    searchCondition[1].check = checkBox2.Checked;
-                    searchCondition[1].searchValue = textBox3.Text;
-                    searchCondition[2].check = checkBox3.Checked;
-                    searchCondition[2].searchValue = textBox4.Text;
-                    searchCondition[3].check = searchConditionShadow[3].check;
-                    searchCondition[3].searchValue = searchConditionShadow[3].searchValue;
-                    searchCondition[4].check = searchConditionShadow[4].check;
-                    searchCondition[4].searchValue = searchConditionShadow[4].searchValue;
-                    searchCondition[5].check = searchConditionShadow[5].check;
-                    searchCondition[5].searchValue = searchConditionShadow[5].searchValue;
-                    searchCondition[6].check = searchConditionShadow[6].check;
-                    searchCondition[6].searchValue = searchConditionShadow[6].searchValue;
+                string query = GetQuery();
 
-                    HtmlDocument doc = webBrowser.Document;
-                    HtmlElementCollection f = doc.GetElementById("search-form").GetElementsByTagName("input");
-                    foreach (HtmlElement f1 in f)
-                    {
-                        if (f1.Name == "q_fritekst")
-                            freetext = f1.GetAttribute("value");
-                        if (f1.Name == "q_stednavn")
-                            location = f1.GetAttribute("value");
-                        if (f1.Name == "q_bygningsnavn")
-                            building = f1.GetAttribute("value");
-                        if (f1.Name == "q_person")
-                            person = f1.GetAttribute("value");
-                        if (f1.Name == "notBefore")
-                            notBefore = f1.GetAttribute("value");
-                        if (f1.Name == "notAfter")
-                            notAfter = f1.GetAttribute("value");
-                    }
-                    string query = "";
-                    if (freetext != "")
-                    {
-                        query = freetext;
 
-                        if (location != "")
-                            query += "%26location%3A" + location;
-                        if (building != "")
-                            query += "%26building%3A" + building;
-                        if (person != "")
-                            query += "%26person%3A" + person;
-                    }
-                    else
-                    {
-                        if (location != "")
-                        {
-                            query = "location%3A" + location;
-
-                            if (building != "")
-                                query += "%26building%3A" + building;
-
-                            if (person != "")
-                                query += "%26person%3A" + person;
-                        }
-                        else
-                        {
-                            if (building != "")
-                            {
-                                query = "building%3A" + building;
-
-                                if (person != "")
-                                    query += "%26person%3A" + person;
-                            }
-                            else
-                                if (person != "")
-                                    query = "person%3A" + person;
-                        }
-
-                    }
-
-                    maxCircle = int.Parse(textBox5.Text);
-                    if (maxCircle < 4)
-                    {
-                        maxCircle = 4;
-                        textBox5.Text = "4";
-                    }
-                    if (maxCircle > 200)
-                    {
-                        maxCircle = 200;
-                        textBox5.Text = "200";
-                    }
-                    button1.BackColor = Color.Blue;
-                    label3.Text = "";
-                    label5.Text = "";
-                    label6.Text = "";
-                    label7.Text = "";
-                    label8.Text = "";
-                    label9.Text = "";
-                    int zoom;
-                    double lat;
-                    double lng;
-                    BrowserCenter(out zoom, out lat, out lng);
-                    Trace.WriteLine(string.Format("zoom: {0}", zoom));
-                    Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "lat: {0}", lat));
-                    Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "lng: {0}", lng));
-                    string coordinates = (lng + deltaLng / (1 << zoom) / 2).ToString(CultureInfo.InvariantCulture) + "," + (lat + deltaLat / (1 << zoom) / 2).ToString(CultureInfo.InvariantCulture) + "," + (lng - deltaLng / (1 << zoom) / 2).ToString(CultureInfo.InvariantCulture) + "," + (lat - deltaLat / (1 << zoom) / 2).ToString(CultureInfo.InvariantCulture);
-                    string uri = "http://www.kb.dk/cop/syndication/images/luftfo/2011/maj/luftfoto/subject203/?format=kml&type=all&bbo=";
-                    uri += coordinates + "&notBefore=" + notBefore + "-01-01" + "&notAfter=" + notAfter + "-01-01";
-                    uri += "&itemsPerPage=20000000&random=0.0&query=" + query;
-
-                    WebClient client = new WebClient();
-                    client.DownloadFileCompleted += new AsyncCompletedEventHandler(client_DownloadFileCompleted);
-                    path = projectFolder + @"\temp.xml";
-                    Trace.WriteLine(string.Format("Downloading fastsearch with URI: {0}", uri));
-                    client.DownloadFileAsync(new Uri(uri), path);
-                }
-                catch (Exception e)
-                {
-                    Trace.WriteLine(string.Format("Error message: " + e.Message));
-                    Trace.WriteLine(string.Format("Stack trace:" + e.StackTrace));
-                    Trace.WriteLine(string.Format("Target site: " + e.TargetSite));
-                    MessageBox.Show("Fastsearch download problem");
-                    searchStopped = true;
-                }
+                Download(query);
             }
         }
 
-        void client_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
+        void Download(string query)
         {
-            Trace.WriteLine(string.Format("Fastsearch download completed"));
-            searching = true;
-            button1.BackColor = Color.Red;
-            HtmlDocument doc = webBrowser.Document;
-            string leftMenu = doc.GetElementById("leftmenu").InnerHtml;
-            int len;
-            kbObjets = KbObjects(leftMenu, out len);
-            label3.Text = "";
-            label4.Text = "";
-            label8.Text = "";
-            label9.Text = "";
-            label6.Text = len.ToString();
-            Thread thread = new Thread(new ThreadStart(ProcessDownload));
-            thread.Start();
-        }
+            this.queryString = query;
+            InitSearchCondition();
 
-        void ProcessDownload()
-        {
+            Invoke(new Action(() =>
+            {
+                button1.BackColor = Color.Blue;
+                InitializeLabels();
+            }));
+
+            int zoom;
+            double lat;
+            double lng;
+            BrowserCenter(out zoom, out lat, out lng);
+            Trace.WriteLine(string.Format("zoom: {0}", zoom));
+            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "lat: {0}", lat));
+            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "lng: {0}", lng));
+            string coordinates = (lng + deltaLng / (1 << zoom) / 2).ToString(CultureInfo.InvariantCulture) + "," + (lat + deltaLat / (1 << zoom) / 2).ToString(CultureInfo.InvariantCulture) + "," + (lng - deltaLng / (1 << zoom) / 2).ToString(CultureInfo.InvariantCulture) + "," + (lat - deltaLat / (1 << zoom) / 2).ToString(CultureInfo.InvariantCulture);
+            Trace.WriteLine("Coordinates: " + coordinates);
+            string uri = "http://www.kb.dk/cop/syndication/images/luftfo/2011/maj/luftfoto/subject203/?format=kml&type=all&bbo=";
+            uri += coordinates + "&notBefore=" + notBefore + "-01-01" + "&notAfter=" + notAfter + "-01-01";
+            uri += "&itemsPerPage=20000000&random=0.0&query=" + query;
+
+            WebClient client= null;
+            string tempString = null;
+            int downloadCounter = 0;
+            bool downloadFailure = true;
+            while (downloadCounter < 10 && downloadFailure)
+            {
+                downloadFailure = false;
+                try
+                {
+                    client = new WebClient();
+                    Trace.WriteLine(string.Format("Downloading fastsearch with URI: {0}", uri));
+                    tempString = client.DownloadString(uri);
+                }
+                catch (Exception e)
+                {
+                    downloadCounter++;
+                    downloadFailure = true;
+                    client.Dispose();
+                    string failDownload = string.Format("Failed to download fastsearch, cnt: {0}", downloadCounter);
+                    Trace.WriteLine(failDownload);
+                    Invoke(new Action(() => label4.Text = failDownload));
+                }
+            }
+            if (downloadFailure)
+            {
+                string failDownloadGiveUp = "Give up download fastsearch";
+                Trace.WriteLine(failDownloadGiveUp);
+                searching = false;
+                searchStopped = true;
+                Invoke(new Action(() => { label4.Text = failDownloadGiveUp; button1.BackColor = Color.Green; button1.Text = ""; }));
+                MessageBox.Show(failDownloadGiveUp);
+                return;
+            }
+            client.Dispose();
+            StreamWriter streamTemp = new StreamWriter(projectFolder + @"\temp.xml");
+            streamTemp.Write(tempString);
+            streamTemp.Close();
+            Trace.WriteLine(string.Format("Fastsearch download completed"));
+
             int counter = -1;
             int dfCounter = -1;
             int searchCounter = -1;
@@ -416,45 +201,73 @@ namespace JH.Applications
             resultList.Clear();
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            WebClient client = new WebClient();
+            client = new WebClient();
             client.Encoding = Encoding.UTF8;
-            max++;
-            ext = string.Format("{0:0000}", max);
+            avgCoordinate = new double[2];
+            searching = true;
+
+            var task = HtmlString();
+            Task.WaitAll(task);
+            string htmlString = task.Result;
+            HtmlDocument doc = null;
+            Invoke(new Action(() =>
+            {
+                WebBrowser browserOld = new WebBrowser();
+                browserOld.ScriptErrorsSuppressed = true;
+                browserOld.DocumentText = htmlString;
+                browserOld.Document.OpenNew(true);
+                browserOld.Document.Write(htmlString);
+                browserOld.Refresh();
+                doc = browserOld.Document;
+            }));
+
+
+            string leftMenu = doc.GetElementById("leftmenu").InnerHtml;
+            int len;
+            string kbObjets = KbObjects(leftMenu, out len); // only len is used
+            Invoke(new Action(() =>
+            {
+                button1.BackColor = Color.Red;
+                button1.Text = "STOP";
+                label6.Text = len.ToString();
+            }));
+
+
+            startExt++;
+            ext = string.Format("{0:0000}", startExt);
             exttxt = ext + ".txt";
-            string badgerFullsizeFile = badgerFullsizePath + ext;
+            string photoFile = photoPath + ext;
             try
             {
-                Directory.CreateDirectory(badgerFullsizeFile);
+                Directory.CreateDirectory(photoFile);
             }
-            catch(Exception e)
+            catch (Exception e1)
             {
-                Trace.WriteLine(string.Format("Could not create directory: {0}", badgerFullsizeFile));
-                Trace.WriteLine(string.Format("Error message: " + e.Message));
-                Trace.WriteLine(string.Format("Stack trace:" + e.StackTrace));
-                Trace.WriteLine(string.Format("Target site: " + e.TargetSite));
+                Trace.WriteLine(string.Format("Could not create directory: {0}", photoFile));
+                Trace.WriteLine(string.Format("Error message: " + e1.Message));
+                Trace.WriteLine(string.Format("Stack trace:" + e1.StackTrace));
+                Trace.WriteLine(string.Format("Target site: " + e1.TargetSite));
+                client.Dispose();
                 searching = false;
                 searchStopped = true;
-                button1.BackColor = Color.Green;
+                Invoke(new Action(() => { button1.BackColor = Color.Green; button1.Text = ""; }));
                 return;
             }
 
-            badgerResultFile = badgerFullsizeFile + @"\" + searchResult + exttxt;
-            badgerResultSortedFile = badgerFullsizeFile + @"\" + sortedResult + exttxt;
-            badgerResultFileWriter = new StreamWriter(badgerResultFile);
-            badgerResultFileSortedWriter = new StreamWriter(badgerResultSortedFile);
+            resultFile = photoFile + @"\" + searchResult + exttxt;
+            esultSortedFile = photoFile + @"\" + sortedResult + exttxt;
+            resultFileWriter = new StreamWriter(resultFile);
+            resultFileSortedWriter = new StreamWriter(esultSortedFile);
             Invoke(new Action(() => linkLabel3.Text = luftfoto + ext));
             Invoke(new Action(() => linkLabel1.Text = sortedResult + exttxt)); ;
             Trace.WriteLine(string.Format("Write headers"));
             WriteHeaders(DateTime.Now.ToString());
-            FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            BinaryReader reader = new BinaryReader(stream);
 
             try
             {
                 XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.Load(stream);
-                stream.Close();
-            
+                xmlDoc.LoadXml(tempString);
+
                 XmlNode node = xmlDoc.DocumentElement.FirstChild.FirstChild;
                 Trace.WriteLine(string.Format("Counting fastsearch hits"));
                 counter = 0;
@@ -479,118 +292,28 @@ namespace JH.Applications
 
                         XmlNodeList lst = node.ChildNodes;
                         string kbdb = lst[2].Attributes[0].Value;
+                        Trace.WriteLine("verbose", kbdb);
                         string[] kbdbSplit = kbdb.Split(new char[] { '/' });
                         string kbObject = kbdbSplit[kbdbSplit.Length - 1];
 
-                        string vejnavn = "";
-                        string husnummer = "";
-                        string postnummer = "";
-                        string betegnelse = "";
-                        string lokalitet = "";
-                        string by = "";
-                        string sogn = "";
-                        string kommune = "";
-                        string politikreds = "";
-                        string retskreds = "";
-                        string region = "";
-                        string ejerlav = "";
-                        string matrikelnr = "";
-                        string zone = "";
-                        string primnavn = "";
-                        string koordinat = lst[3].FirstChild.InnerText;
-                        DataforsyningAdresser dataforsyningAdresser = null;
-                        DataforsyningSteder dataforsyningSteder = null;
-
-                        searchCondition[0].value = "";
-                        searchCondition[1].value = "";
-                        searchCondition[2].value = "";
-                        searchCondition[3].value = "";
-                        searchCondition[4].value = "";
-                        searchCondition[5].value = "";
-                        searchCondition[6].value = "";
-
-                        string kbdbResponse="";
-                        int ntry = 10;
-                        bool responseFailure = true;
-                        while (ntry > 0 && responseFailure)
-                        {
-                            responseFailure = false;
-                            try
-                            {
-
-                                kbdbResponse = client.DownloadString(kbdb);
-                            }
-                            catch
-                            {
-                                ntry--;
-                                responseFailure = true;
-                                Trace.WriteLine(string.Format("KB response failure {0}", ntry));
-                                Trace.WriteLine(string.Format("URI: {0}", kbdb));
-                                Thread.Sleep(200);
-                            }
-                        }
-                        if (responseFailure)
-                        {
-                            node = node.NextSibling;
-                            counter++;
-                            Trace.WriteLine(string.Format("Counter: {0}", counter));
-                            Invoke(new Action(() => label5.Text = counter.ToString()));
-                            Trace.WriteLine("Fatal response failure - Give up on: "+ kbdb);
+                        if (!SearchCriteria(lst, client, kbdb, node, ref counter, ref dfCounter))
                             continue;
-                        }
-                        string vejnavnKB = SearchKbDb(kbdbResponse, "Vejnavn");
-                        string husnummerKB = SearchKbDb(kbdbResponse, "Husnummer");
-                        string postnummerKB = SearchKbDb(kbdbResponse, "Postnummer");
-                        string matrikelnummerKB = SearchKbDb(kbdbResponse, "Matrikelnummer");
-                        string ejerlavKB = "";
-                        string kommuneKB = "";
-                        string sognKB = SearchKbDb(kbdbResponse, "Sogn");
-                        double circ = 4;
-                        while (circ <= maxCircle)
-                        {
-                            circle = (int)Math.Round(circ);
-                            dataforsyningAdresser = new DataforsyningAdresser("adresser", koordinat, circle, token, client);
-                            string vejn = dataforsyningAdresser.Vejnavn;
-                            if (vejn != "")
-                            {
-                                dfCounter++;
-                                break;
-                            }
-                            circ *= Math.Pow(2, 0.5);
-                        }
-                        circle = circ > maxCircle ? maxCircle : circle;
 
-                        if (dataforsyningAdresser.dataList.Count != 0)
-                        {
-                            searchCondition[0].value = vejnavnKB == "" ? dataforsyningAdresser.Vejnavn : vejnavnKB;
-                            searchCondition[1].value = husnummerKB == "" ? dataforsyningAdresser.Husnr : husnummerKB;
-                            searchCondition[2].value = postnummerKB == "" ? dataforsyningAdresser.Postnummer : postnummerKB;
-                            searchCondition[3].value = matrikelnummerKB == "" ? dataforsyningAdresser.Matrikelnr : matrikelnummerKB;
-                            searchCondition[4].value = ejerlavKB == "" ? dataforsyningAdresser.Ejerlav : ejerlavKB;
-                            searchCondition[5].value = kommuneKB == "" ? dataforsyningAdresser.Kommune : kommuneKB;
-                            searchCondition[6].value = sognKB == "" ? dataforsyningAdresser.Sogn : sognKB;
-                        }
-                        else
-                        {
-                            searchCondition[0].value = vejnavnKB;
-                            searchCondition[1].value = husnummerKB;
-                            searchCondition[2].value = postnummerKB;
-                            searchCondition[3].value = matrikelnummerKB;
-                            searchCondition[4].value = ejerlavKB;
-                            searchCondition[5].value = kommuneKB;
-                            searchCondition[6].value = sognKB;
-
-                        }
                         if (NotFoundSearchChriteria(searchCondition))
                         {
                             node = node.NextSibling;
                             counter++;
                             if ((counter % 100) == 0)
-                            Trace.WriteLine(string.Format("Counter: {0}", counter));
+                                Trace.WriteLine(string.Format("Counter: {0}", counter));
+                            Trace.WriteLine("verbose", string.Format("Counter: {0}", counter));
                             Invoke(new Action(() => label5.Text = counter.ToString()));
                             continue;
                         }
-
+                        string[] splitCoordinate = koordinat.Split(new char[] { ',' });
+                        double longitude = double.Parse(splitCoordinate[0], CultureInfo.InvariantCulture);
+                        double latitude = double.Parse(splitCoordinate[1], CultureInfo.InvariantCulture);
+                        avgCoordinate[0] += longitude;
+                        avgCoordinate[1] += latitude;
                         dataforsyningSteder = new DataforsyningSteder("steder", koordinat, circle, token, client);
                         if (dataforsyningSteder.dataList.Count != 0)
                             primnavn = dataforsyningSteder.PrimNavn;
@@ -615,9 +338,7 @@ namespace JH.Applications
                         string lokalitetKB = SearchKbDb(kbdbResponse, "Lokalitet");
                         string titelKB = SearchKbDb(kbdbResponse, "Titel");
                         string personKB = SearchKbDb(kbdbResponse, "Person");
-                        string bygningsnavnKB = SearchKbDb(kbdbResponse, "Bygningsnavn");
                         string stedKB = SearchKbDb(kbdbResponse, "Sted");
-                        string byKB = SearchKbDb(kbdbResponse, "By");
                         string ophavKB = SearchKbDb(kbdbResponse, "Ophav");
                         string aarKB = SearchKbDb(kbdbResponse, "År");
                         string noteKB = SearchKbDb(kbdbResponse, "Note");
@@ -627,8 +348,20 @@ namespace JH.Applications
                         counter++;
                         if ((counter % 100) == 0)
                             Trace.WriteLine(string.Format("Counter: {0}", counter));
+                        Trace.WriteLine("verbose", string.Format("Counter: {0}", counter));
                         string title = lst[0].InnerText;
-                        Invoke(new Action(() => { label3.Text = searchCounter.ToString(); label5.Text = counter.ToString(); label8.Text = dfCounter.ToString(); label9.Text = circle.ToString(); label4.Text = title; }));
+                        searchCondition[0].value = vejnavnKB == "" ? dataforsyningAdresser.Vejnavn : vejnavnKB;
+                        searchCondition[1].value = husnummerKB == "" ? dataforsyningAdresser.Husnr : husnummerKB;
+                        searchCondition[2].value = postnummerKB == "" ? dataforsyningAdresser.Postnummer : postnummerKB;
+                        searchCondition[3].value = matrikelnummerKB == "" ? dataforsyningAdresser.Matrikelnr : matrikelnummerKB;
+                        searchCondition[4].value = ejerlavKB == "" ? dataforsyningAdresser.Ejerlav : ejerlavKB;
+                        searchCondition[5].value = kommuneKB == "" ? dataforsyningAdresser.Kommune : kommuneKB;
+                        searchCondition[6].value = sognKB == "" ? dataforsyningAdresser.Sogn : sognKB;
+                        searchCondition[7].value = bygningsnavnKB == "" ? dataforsyningSteder.PrimNavn : bygningsnavnKB;
+                        searchCondition[8].value = byKB == "" ? dataforsyningAdresser.By : byKB;
+                        string pictureFileName = PictureFileName(searchCounter, searchCondition[0].value, searchCondition[1].value, searchCondition[2].value, searchCondition[8].value, aarKB, idKB, searchCondition[7].value);
+                        Trace.WriteLine("verbose", "Picture file name: " + pictureFileName);
+                        Invoke(new Action(() => { label3.Text = searchCounter.ToString(); label5.Text = counter.ToString(); label8.Text = dfCounter.ToString(); label9.Text = circle.ToString(); label4.Text = pictureFileName; }));
 
                         itemList = new ItemList();
                         WriteSearchResult("________________________________________________________________________________", "");
@@ -677,24 +410,28 @@ namespace JH.Applications
                         WriteSearchResult("Region:.", region);
                         WriteSearchResult("Zome:.", zone);
                         WriteSearchResult("", "");
-                        badgerResultFileWriter.Flush();
+                        resultFileWriter.Flush();
                         resultList.Add(itemList);
 
-                        DownloadPicture(lst[4].ChildNodes[7].FirstChild.InnerText, badgerFullsizeFile, searchCounter, vejnavnKB, husnummerKB, postnummerKB, byKB, aarKB, idKB, bygningsnavnKB);
+                        DownloadPicture(lst[4].ChildNodes[7].FirstChild.InnerText, photoFile, pictureFileName);
 
                     }
                     node = node.NextSibling;
                 }
-                badgerResultFileWriter.Close();
+                resultFileWriter.Close();
                 resultList.Sort(ItemList.Compare);
+                avgCoordinate[0] /= searchCounter;
+                avgCoordinate[1] /= searchCounter;
+                resultFileSortedWriter.WriteLine(string.Format(CultureInfo.InvariantCulture, "Center Koordinat: {0}, {1}", avgCoordinate[0], avgCoordinate[1]));
+                resultFileSortedWriter.WriteLine();
                 WriteSortedResult();
-                badgerResultFileSortedWriter.Close();
+                resultFileSortedWriter.Close();
             }
-            catch (Exception e)
+            catch (Exception e3)
             {
-                Trace.WriteLine(string.Format("Error message: " + e.Message));
-                Trace.WriteLine(string.Format("Stack trace:" + e.StackTrace));
-                Trace.WriteLine(string.Format("Target site: " + e.TargetSite));
+                Trace.WriteLine(string.Format("Error message: " + e3.Message));
+                Trace.WriteLine(string.Format("Stack trace:" + e3.StackTrace));
+                Trace.WriteLine(string.Format("Target site: " + e3.TargetSite));
                 MessageBox.Show("Huston, we have a problem");
             }
             finally
@@ -702,48 +439,166 @@ namespace JH.Applications
                 Trace.WriteLine(string.Format("Counter: {0}", counter));
                 Trace.WriteLine(string.Format("Dataforsyningscounter: {0}", dfCounter));
                 Trace.WriteLine(string.Format("Search counter: {0}", searchCounter));
+                client.Dispose();
                 searching = false;
                 searchStopped = true;
-                button1.BackColor = Color.Green;
+                Invoke(new Action(() => { button1.BackColor = Color.Green; button1.Text = ""; }));
                 Trace.WriteLine(string.Format("Finesearch completed"));
                 Trace.WriteLine("");
-                Trace.WriteLine("");
-            }
-        }
-        class ItemList : List<string>, IComparer
-        {
-            public static int count;
-            static public int Compare(ItemList l0, ItemList l1)
-            {
-                return string.Compare(l0[count], l1[count]);
-            }
-            public int Compare(object l0, object l1)
-            {
-
-                return string.Compare(((List<string>)l0)[15], ((List<string>)l1)[15]);
             }
         }
 
-        class MyTraceListener :TraceListener
+        bool SearchCriteria(XmlNodeList lst, WebClient client, string kbdb, XmlNode node, ref int counter, ref int dfCounter)
         {
-            DateTime start;
-            TextWriter writer;
-            public MyTraceListener(TextWriter writer)
+            vejnavn = "";
+            husnummer = "";
+            postnummer = "";
+            betegnelse = "";
+            lokalitet = "";
+            by = "";
+            sogn = "";
+            kommune = "";
+            politikreds = "";
+            retskreds = "";
+            region = "";
+            ejerlav = "";
+            matrikelnr = "";
+            zone = "";
+            primnavn = "";
+            koordinat = lst[3].FirstChild.InnerText;
+            dataforsyningAdresser = null;
+            dataforsyningSteder = null;
+
+            searchCondition[0].value = "";
+            searchCondition[1].value = "";
+            searchCondition[2].value = "";
+            searchCondition[3].value = "";
+            searchCondition[4].value = "";
+            searchCondition[5].value = "";
+            searchCondition[6].value = "";
+            searchCondition[7].value = "";
+            searchCondition[8].value = "";
+
+            kbdbResponse = "";
+            int ntry = 10;
+            bool responseFailure = true;
+            while (ntry > 0 && responseFailure)
             {
-                start = DateTime.Now;
-                this.writer = writer;
-                writer.WriteLine(DateTime.Now.ToString());
+                responseFailure = false;
+                try
+                {
+
+                    kbdbResponse = client.DownloadString(kbdb);
+                }
+                catch
+                {
+                    ntry--;
+                    responseFailure = true;
+                    string failReaponse = string.Format("KB response failure {0}", ntry);
+                    Invoke(new Action(() => label4.Text = failReaponse));
+                    Trace.WriteLine(failReaponse);
+                    Trace.WriteLine(string.Format("URI: {0}", kbdb));
+                    Thread.Sleep(200);
+                }
             }
-            public override void WriteLine(string message)
+            if (responseFailure)
             {
-                writer.WriteLine(string.Format("{0,10:0.000}  {1}", (DateTime.Now -start).TotalSeconds, message));
-                writer.Flush();
+                node = node.NextSibling;
+                counter++;
+                int cnt = counter;
+                Trace.WriteLine(string.Format("Counter: {0}", counter));
+                Invoke(new Action(() => { label4.Text = "Fatal response failure - Give up"; label5.Text = cnt.ToString(); }));
+                Trace.WriteLine("Fatal response failure - Give up on: " + kbdb);
+                return false;
             }
-            public override void Write(string message)
+            vejnavnKB = SearchKbDb(kbdbResponse, "Vejnavn");
+            husnummerKB = SearchKbDb(kbdbResponse, "Husnummer");
+            postnummerKB = SearchKbDb(kbdbResponse, "Postnummer");
+            matrikelnummerKB = SearchKbDb(kbdbResponse, "Matrikelnummer");
+            ejerlavKB = "";
+            kommuneKB = "";
+            sognKB = SearchKbDb(kbdbResponse, "Sogn");
+            bygningsnavnKB = SearchKbDb(kbdbResponse, "Bygningsnavn");
+            byKB = SearchKbDb(kbdbResponse, "By");
+            double circ = 4;
+            while (circ <= maxCircle)
             {
-                writer.Write(string.Format("{0,10:0.000}  {1}", (DateTime.Now - start).TotalSeconds, message));
-                writer.Flush();
+                circle = (int)Math.Round(circ);
+                dataforsyningAdresser = new DataforsyningAdresser("adresser", koordinat, circle, token, client);
+                dataforsyningSteder = new DataforsyningSteder("steder", koordinat, circle, token, client);
+                string vejn = dataforsyningAdresser.Vejnavn;
+                if (vejn != "")
+                {
+                    dfCounter++;
+                    break;
+                }
+                circ *= Math.Pow(2, 0.5);
             }
+            circle = circ > maxCircle ? maxCircle : circle;
+            Trace.WriteLine("verbose", "Max circle: " + maxCircle.ToString());
+            Trace.WriteLine("verbose", "Circle: " + circle.ToString());
+            if (dataforsyningAdresser.dataList.Count != 0)
+            {
+                searchCondition[0].value = vejnavnKB == "" ? dataforsyningAdresser.Vejnavn : vejnavnKB;
+                searchCondition[1].value = husnummerKB == "" ? dataforsyningAdresser.Husnr : husnummerKB;
+                searchCondition[2].value = postnummerKB == "" ? dataforsyningAdresser.Postnummer : postnummerKB;
+                searchCondition[3].value = matrikelnummerKB == "" ? dataforsyningAdresser.Matrikelnr : matrikelnummerKB;
+                searchCondition[4].value = ejerlavKB == "" ? dataforsyningAdresser.Ejerlav : ejerlavKB;
+                searchCondition[5].value = kommuneKB == "" ? dataforsyningAdresser.Kommune : kommuneKB;
+                searchCondition[6].value = sognKB == "" ? dataforsyningAdresser.Sogn : sognKB;
+                searchCondition[7].value = bygningsnavnKB == "" ? dataforsyningSteder.PrimNavn : bygningsnavnKB;
+                searchCondition[8].value = byKB == "" ? dataforsyningAdresser.By : byKB;
+            }
+            else
+            {
+                searchCondition[0].value = vejnavnKB;
+                searchCondition[1].value = husnummerKB;
+                searchCondition[2].value = postnummerKB;
+                searchCondition[3].value = matrikelnummerKB;
+                searchCondition[4].value = ejerlavKB;
+                searchCondition[5].value = kommuneKB;
+                searchCondition[6].value = sognKB;
+                searchCondition[7].value = bygningsnavnKB;
+                searchCondition[8].value = byKB;
+
+            }
+            return true;
         }
+
+        private void OnIsBrowserInitializedChanged(object sender, EventArgs e)
+        {
+            var b = ((ChromiumWebBrowser)sender);
+
+            //            this.InvokeOnUiThreadIfRequired(() => b.Focus());
+        }
+
+        private void OnBrowserConsoleMessage(object sender, ConsoleMessageEventArgs args)
+        {
+            //            Trace.WriteLine(string.Format("Line: {0}, Source: {1}, Message: {2}", args.Line, args.Source, args.Message));
+        }
+
+        private void OnBrowserStatusMessage(object sender, StatusMessageEventArgs args)
+        {
+            //    this.InvokeOnUiThreadIfRequired(() => statusLabel.Text = args.Value);
+        }
+
+        private void OnLoadingStateChanged(object sender, LoadingStateChangedEventArgs args)
+        {
+            //SetCanGoBack(args.CanGoBack);
+            //SetCanGoForward(args.CanGoForward);
+
+            //this.InvokeOnUiThreadIfRequired(() => SetIsLoading(!args.CanReload));
+        }
+
+        private void OnBrowserTitleChanged(object sender, TitleChangedEventArgs args)
+        {
+            //      this.InvokeOnUiThreadIfRequired(() => Text = args.Title);
+        }
+
+        private void OnBrowserAddressChanged(object sender, AddressChangedEventArgs args)
+        {
+            //       this.InvokeOnUiThreadIfRequired(() => urlTextBox.Text = args.Address);
+        }
+
     }
 }

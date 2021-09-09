@@ -43,9 +43,6 @@
             this.linkLabel3 = new System.Windows.Forms.LinkLabel();
             this.linkLabel4 = new System.Windows.Forms.LinkLabel();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.textBox4 = new System.Windows.Forms.TextBox();
             this.textBox5 = new System.Windows.Forms.TextBox();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.button1 = new System.Windows.Forms.Button();
@@ -57,10 +54,6 @@
             this.button7 = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
             this.button9 = new System.Windows.Forms.Button();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
-            this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.label1toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.label3toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.label4toolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -69,10 +62,12 @@
             this.label7toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.label8toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.label9toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.label10toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.linkLabel1toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.linkLabel3toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.linkLabel4toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.comboBox1toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.textBox5toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.button1toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.button2toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.button3toolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -82,6 +77,18 @@
             this.button7toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.button8toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.button9toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.button10toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.button11toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.button12toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.button13toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.button14toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.button10 = new System.Windows.Forms.Button();
+            this.button11 = new System.Windows.Forms.Button();
+            this.button12 = new System.Windows.Forms.Button();
+            this.button13 = new System.Windows.Forms.Button();
+            this.button14 = new System.Windows.Forms.Button();
+            this.label10 = new System.Windows.Forms.Label();
+            this.button15 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -96,7 +103,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(594, 63);
+            this.label2.Location = new System.Drawing.Point(892, 141);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(58, 13);
             this.label2.TabIndex = 48;
@@ -114,7 +121,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(727, 144);
+            this.label4.Location = new System.Drawing.Point(481, 134);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(35, 13);
             this.label4.TabIndex = 19;
@@ -167,10 +174,9 @@
             // 
             // linkLabel1
             // 
-            this.linkLabel1.AutoSize = true;
             this.linkLabel1.Location = new System.Drawing.Point(187, 134);
             this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(55, 13);
+            this.linkLabel1.Size = new System.Drawing.Size(137, 20);
             this.linkLabel1.TabIndex = 44;
             this.linkLabel1.TabStop = true;
             this.linkLabel1.Text = "linkLabel1";
@@ -178,10 +184,9 @@
             // 
             // linkLabel3
             // 
-            this.linkLabel3.AutoSize = true;
             this.linkLabel3.Location = new System.Drawing.Point(32, 134);
             this.linkLabel3.Name = "linkLabel3";
-            this.linkLabel3.Size = new System.Drawing.Size(49, 13);
+            this.linkLabel3.Size = new System.Drawing.Size(128, 20);
             this.linkLabel3.TabIndex = 14;
             this.linkLabel3.TabStop = true;
             this.linkLabel3.Text = "linLabel3";
@@ -189,10 +194,9 @@
             // 
             // linkLabel4
             // 
-            this.linkLabel4.AutoSize = true;
             this.linkLabel4.Location = new System.Drawing.Point(356, 134);
             this.linkLabel4.Name = "linkLabel4";
-            this.linkLabel4.Size = new System.Drawing.Size(79, 13);
+            this.linkLabel4.Size = new System.Drawing.Size(119, 20);
             this.linkLabel4.TabIndex = 49;
             this.linkLabel4.TabStop = true;
             this.linkLabel4.Text = "Brugsanvisning";
@@ -206,33 +210,9 @@
             this.textBox1.Size = new System.Drawing.Size(202, 20);
             this.textBox1.TabIndex = 0;
             // 
-            // textBox2
-            // 
-            this.textBox2.Location = new System.Drawing.Point(103, 60);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.textBox2.Size = new System.Drawing.Size(117, 20);
-            this.textBox2.TabIndex = 2;
-            // 
-            // textBox3
-            // 
-            this.textBox3.Location = new System.Drawing.Point(321, 59);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.textBox3.Size = new System.Drawing.Size(38, 20);
-            this.textBox3.TabIndex = 4;
-            // 
-            // textBox4
-            // 
-            this.textBox4.Location = new System.Drawing.Point(467, 59);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.textBox4.Size = new System.Drawing.Size(32, 20);
-            this.textBox4.TabIndex = 6;
-            // 
             // textBox5
             // 
-            this.textBox5.Location = new System.Drawing.Point(657, 59);
+            this.textBox5.Location = new System.Drawing.Point(955, 137);
             this.textBox5.Name = "textBox5";
             this.textBox5.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.textBox5.Size = new System.Drawing.Size(36, 20);
@@ -249,7 +229,7 @@
             "Vejnavn Husnummer, Postnummer - År - ID",
             "Vejnavn Husnummer - År - ID",
             "Vejnavn Husnummer - År - Bygningsnavn - ID"});
-            this.comboBox1.Location = new System.Drawing.Point(467, 98);
+            this.comboBox1.Location = new System.Drawing.Point(467, 62);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.comboBox1.Size = new System.Drawing.Size(226, 21);
@@ -268,7 +248,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(35, 97);
+            this.button2.Location = new System.Drawing.Point(35, 60);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(125, 23);
             this.button2.TabIndex = 9;
@@ -278,7 +258,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(190, 97);
+            this.button3.Location = new System.Drawing.Point(190, 60);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(133, 23);
             this.button3.TabIndex = 10;
@@ -288,7 +268,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(359, 97);
+            this.button4.Location = new System.Drawing.Point(359, 60);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(87, 23);
             this.button4.TabIndex = 11;
@@ -298,11 +278,11 @@
             // 
             // button5
             // 
+            this.button5.BackgroundImage = global::JH.Applications.Properties.Resources.leftArrow;
             this.button5.Location = new System.Drawing.Point(-3, 171);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(27, 23);
+            this.button5.Size = new System.Drawing.Size(27, 27);
             this.button5.TabIndex = 40;
-            this.button5.Text = "B";
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
@@ -338,57 +318,95 @@
             // 
             // button9
             // 
-            this.button9.Location = new System.Drawing.Point(527, 56);
+            this.button9.Location = new System.Drawing.Point(730, 134);
             this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(51, 23);
+            this.button9.Size = new System.Drawing.Size(135, 23);
             this.button9.TabIndex = 46;
-            this.button9.Text = "Mere ...";
+            this.button9.Text = "Finsøgningskriterier....";
             this.button9.UseVisualStyleBackColor = true;
             this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
-            // checkBox1
+            // button10
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(34, 62);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(65, 17);
-            this.checkBox1.TabIndex = 1;
-            this.checkBox1.Text = "Vejnavn";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.button10.Location = new System.Drawing.Point(36, 97);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(125, 23);
+            this.button10.TabIndex = 54;
+            this.button10.Text = "Batch med billeder";
+            this.button10.UseVisualStyleBackColor = true;
+            this.button10.Click += new System.EventHandler(this.button10_Click);
             // 
-            // checkBox2
+            // button11
             // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(233, 62);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(82, 17);
-            this.checkBox2.TabIndex = 3;
-            this.checkBox2.Text = "Husnummer";
-            this.checkBox2.UseVisualStyleBackColor = true;
+            this.button11.Location = new System.Drawing.Point(190, 97);
+            this.button11.Name = "button11";
+            this.button11.Size = new System.Drawing.Size(133, 23);
+            this.button11.TabIndex = 55;
+            this.button11.Text = "Batch uden billeder";
+            this.button11.UseVisualStyleBackColor = true;
+            this.button11.Click += new System.EventHandler(this.button11_Click);
             // 
-            // checkBox3
+            // button12
             // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point(377, 62);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(84, 17);
-            this.checkBox3.TabIndex = 5;
-            this.checkBox3.Text = "Postnummer";
-            this.checkBox3.UseVisualStyleBackColor = true;
+            this.button12.Location = new System.Drawing.Point(417, 97);
+            this.button12.Name = "button12";
+            this.button12.Size = new System.Drawing.Size(87, 23);
+            this.button12.TabIndex = 56;
+            this.button12.Text = "Stop batch";
+            this.button12.UseVisualStyleBackColor = true;
+            this.button12.Click += new System.EventHandler(this.button12_Click);
             // 
-            // webBrowser
+            // button13
             // 
-            this.webBrowser.Location = new System.Drawing.Point(30, 171);
-            this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
-            this.webBrowser.Name = "webBrowser";
-            this.webBrowser.Size = new System.Drawing.Size(1000, 555);
-            this.webBrowser.TabIndex = 38;
+            this.button13.Location = new System.Drawing.Point(521, 97);
+            this.button13.Name = "button13";
+            this.button13.Size = new System.Drawing.Size(70, 23);
+            this.button13.TabIndex = 58;
+            this.button13.Text = "Vis batch";
+            this.button13.UseVisualStyleBackColor = true;
+            this.button13.Click += new System.EventHandler(this.button13_Click);
+            // 
+            // button14
+            // 
+            this.button14.BackgroundImage = global::JH.Applications.Properties.Resources.rightArrow;
+            this.button14.Location = new System.Drawing.Point(-3, 198);
+            this.button14.Name = "button14";
+            this.button14.Size = new System.Drawing.Size(27, 27);
+            this.button14.TabIndex = 60;
+            this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(356, 103);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(41, 13);
+            this.label10.TabIndex = 61;
+            this.label10.Text = "label10";
+            // 
+            // button15
+            // 
+            this.button15.Location = new System.Drawing.Point(607, 98);
+            this.button15.Name = "button15";
+            this.button15.Size = new System.Drawing.Size(86, 23);
+            this.button15.TabIndex = 62;
+            this.button15.Text = "Vis total batch";
+            this.button15.UseVisualStyleBackColor = true;
+            this.button15.Click += new System.EventHandler(this.button15_Click);
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1059, 751);
+            this.Controls.Add(this.button15);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.button14);
+            this.Controls.Add(this.button13);
+            this.Controls.Add(this.button12);
+            this.Controls.Add(this.button11);
+            this.Controls.Add(this.button10);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label3);
@@ -402,9 +420,6 @@
             this.Controls.Add(this.linkLabel3);
             this.Controls.Add(this.linkLabel4);
             this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.textBox3);
-            this.Controls.Add(this.textBox4);
             this.Controls.Add(this.textBox5);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.button1);
@@ -416,10 +431,6 @@
             this.Controls.Add(this.button7);
             this.Controls.Add(this.button8);
             this.Controls.Add(this.button9);
-            this.Controls.Add(this.checkBox1);
-            this.Controls.Add(this.checkBox2);
-            this.Controls.Add(this.checkBox3);
-            this.Controls.Add(this.webBrowser);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormMain";
             this.Load += new System.EventHandler(this.FormMain_Load);
@@ -444,9 +455,6 @@
         private System.Windows.Forms.LinkLabel linkLabel3;
         private System.Windows.Forms.LinkLabel linkLabel4;
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.TextBox textBox5;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Button button1;
@@ -458,10 +466,6 @@
         private System.Windows.Forms.Button button7;
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.Button button9;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.CheckBox checkBox3;
-        private System.Windows.Forms.WebBrowser webBrowser;
 
         private System.Windows.Forms.ToolTip label1toolTip;
         private System.Windows.Forms.ToolTip label3toolTip;
@@ -471,9 +475,11 @@
         private System.Windows.Forms.ToolTip label7toolTip;
         private System.Windows.Forms.ToolTip label8toolTip;
         private System.Windows.Forms.ToolTip label9toolTip;
+        private System.Windows.Forms.ToolTip label10toolTip;
         private System.Windows.Forms.ToolTip linkLabel1toolTip;
         private System.Windows.Forms.ToolTip linkLabel3toolTip;
         private System.Windows.Forms.ToolTip linkLabel4toolTip;
+        private System.Windows.Forms.ToolTip textBox5toolTip;
         private System.Windows.Forms.ToolTip comboBox1toolTip;
         private System.Windows.Forms.ToolTip button1toolTip;
         private System.Windows.Forms.ToolTip button2toolTip;
@@ -484,7 +490,18 @@
         private System.Windows.Forms.ToolTip button7toolTip;
         private System.Windows.Forms.ToolTip button8toolTip;
         private System.Windows.Forms.ToolTip button9toolTip;
-
+        private System.Windows.Forms.ToolTip button10toolTip;
+        private System.Windows.Forms.ToolTip button11toolTip;
+        private System.Windows.Forms.ToolTip button12toolTip;
+        private System.Windows.Forms.ToolTip button13toolTip;
+        private System.Windows.Forms.ToolTip button14toolTip;
+        private System.Windows.Forms.Button button10;
+        private System.Windows.Forms.Button button11;
+        private System.Windows.Forms.Button button12;
+        private System.Windows.Forms.Button button13;
+        private System.Windows.Forms.Button button14;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Button button15;
     }
 }
 
