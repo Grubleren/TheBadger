@@ -18,15 +18,16 @@ namespace JH.Applications
 {
     public partial class FormMain : Form
     {
-        string version = "The Badger ver. 5.4";
+        string version = "The Badger ver. 5.6";
 
         public FormMain()
         {
             InitializeComponent();
-            webBrowser = new ChromiumWebBrowser("");
-            Controls.Add(webBrowser);
+            InitializeChromium();
 
-            SetupWebbrowser();
+            SetupTooltips();
+
+            this.Text = version;
 
             Cef.EnableHighDPISupport();
 
@@ -41,13 +42,6 @@ namespace JH.Applications
             searchDialog = new SearchDialog(this);
 
             Trace.AutoFlush = true;
-        }
-
-        private void FormMain_Load(object sender, EventArgs e)
-        {
-            this.Text = version;
-
-            SetupTooltips();
 
             InitializeLabels();
             label10.Text = "";
@@ -71,6 +65,11 @@ namespace JH.Applications
             kbServerRunningTimer.Enabled = true;
             kbServerRunningTimer.Tick += timer_Tick;
             kbServerRunningTimer.Start();
+        }
+
+        void FormMain_Load(object sender, EventArgs e)
+        {
+
         }
 
         void timer_Tick(object sender, EventArgs e)
@@ -124,14 +123,33 @@ namespace JH.Applications
 
                 Trace.WriteLine(string.Format("Preparing fastsearch"));
 
-                string query = GetQuery();
-
-
-                Download(query);
+                int downloadCounter = 0;
+                bool downloadFailure = true;
+                while (downloadCounter < 10 && downloadFailure)
+                {
+                    string query = GetQuery();
+                    downloadFailure = !Download(query);
+                    if (downloadFailure)
+                    {
+                        downloadCounter++;
+                        string failDownload = string.Format("Failed to download fastsearch, cnt: {0}", downloadCounter);
+                        Trace.WriteLine(failDownload);
+                        Invoke(new Action(() => label4.Text = failDownload));
+                    }
+                }
+                if (downloadFailure)
+                {
+                    string failDownloadGiveUp = "Give up download fastsearch";
+                    Trace.WriteLine(failDownloadGiveUp);
+                    searching = false;
+                    searchStopped = true;
+                    Invoke(new Action(() => { label4.Text = failDownloadGiveUp; button1.BackColor = Color.Green; button1.Text = ""; }));
+                    MessageBox.Show(failDownloadGiveUp);
+                }
             }
         }
 
-        void Download(string query)
+        bool Download(string query)
         {
             this.queryString = query;
             InitSearchCondition();
@@ -155,38 +173,21 @@ namespace JH.Applications
             uri += coordinates + "&notBefore=" + notBefore + "-01-01" + "&notAfter=" + notAfter + "-01-01";
             uri += "&itemsPerPage=20000000&random=0.0&query=" + query;
 
-            WebClient client= null;
+            WebClient client = null;
             string tempString = null;
-            int downloadCounter = 0;
-            bool downloadFailure = true;
-            while (downloadCounter < 10 && downloadFailure)
+            try
             {
-                downloadFailure = false;
-                try
-                {
-                    client = new WebClient();
-                    Trace.WriteLine(string.Format("Downloading fastsearch with URI: {0}", uri));
-                    tempString = client.DownloadString(uri);
-                }
-                catch (Exception e)
-                {
-                    downloadCounter++;
-                    downloadFailure = true;
-                    client.Dispose();
-                    string failDownload = string.Format("Failed to download fastsearch, cnt: {0}", downloadCounter);
-                    Trace.WriteLine(failDownload);
-                    Invoke(new Action(() => label4.Text = failDownload));
-                }
+                client = new WebClient();
+                Trace.WriteLine(string.Format("Downloading fastsearch with URI: {0}", uri));
+                tempString = client.DownloadString(uri);
             }
-            if (downloadFailure)
+            catch (Exception e)
             {
-                string failDownloadGiveUp = "Give up download fastsearch";
-                Trace.WriteLine(failDownloadGiveUp);
-                searching = false;
-                searchStopped = true;
-                Invoke(new Action(() => { label4.Text = failDownloadGiveUp; button1.BackColor = Color.Green; button1.Text = ""; }));
-                MessageBox.Show(failDownloadGiveUp);
-                return;
+                client.Dispose();
+                string failDownload = string.Format("Failed to download fastsearch trying again");
+                Trace.WriteLine(failDownload);
+                Invoke(new Action(() => label4.Text = failDownload));
+                return false;
             }
             client.Dispose();
             StreamWriter streamTemp = new StreamWriter(projectFolder + @"\temp.xml");
@@ -204,6 +205,8 @@ namespace JH.Applications
             client = new WebClient();
             client.Encoding = Encoding.UTF8;
             avgCoordinate = new double[2];
+            avgCircle = 0;
+            long timeZero = DateTime.Now.Ticks;
             searching = true;
 
             var task = HtmlString();
@@ -251,7 +254,7 @@ namespace JH.Applications
                 searching = false;
                 searchStopped = true;
                 Invoke(new Action(() => { button1.BackColor = Color.Green; button1.Text = ""; }));
-                return;
+                return true;
             }
 
             resultFile = photoFile + @"\" + searchResult + exttxt;
@@ -314,6 +317,8 @@ namespace JH.Applications
                         double latitude = double.Parse(splitCoordinate[1], CultureInfo.InvariantCulture);
                         avgCoordinate[0] += longitude;
                         avgCoordinate[1] += latitude;
+                        avgCircle += circle;
+                        avgTimePerDownload = DateTime.Now.Ticks - timeZero;
                         dataforsyningSteder = new DataforsyningSteder("steder", koordinat, circle, token, client);
                         if (dataforsyningSteder.dataList.Count != 0)
                             primnavn = dataforsyningSteder.PrimNavn;
@@ -412,6 +417,7 @@ namespace JH.Applications
                         WriteSearchResult("", "");
                         resultFileWriter.Flush();
                         resultList.Add(itemList);
+                        Invoke(new Action(() => label11.Text = string.Format("{0:0.0} s/item", avgTimePerDownload / searchCounter / 10000000.0)));
 
                         DownloadPicture(lst[4].ChildNodes[7].FirstChild.InnerText, photoFile, pictureFileName);
 
@@ -422,7 +428,9 @@ namespace JH.Applications
                 resultList.Sort(ItemList.Compare);
                 avgCoordinate[0] /= searchCounter;
                 avgCoordinate[1] /= searchCounter;
+                avgCircle /= searchCounter;
                 resultFileSortedWriter.WriteLine(string.Format(CultureInfo.InvariantCulture, "Center Koordinat: {0}, {1}", avgCoordinate[0], avgCoordinate[1]));
+                resultFileSortedWriter.WriteLine(string.Format("Middel cirkel: {0:0.0}", avgCircle));
                 resultFileSortedWriter.WriteLine();
                 WriteSortedResult();
                 resultFileSortedWriter.Close();
@@ -446,6 +454,7 @@ namespace JH.Applications
                 Trace.WriteLine(string.Format("Finesearch completed"));
                 Trace.WriteLine("");
             }
+            return true;
         }
 
         bool SearchCriteria(XmlNodeList lst, WebClient client, string kbdb, XmlNode node, ref int counter, ref int dfCounter)
@@ -568,6 +577,8 @@ namespace JH.Applications
         private void OnIsBrowserInitializedChanged(object sender, EventArgs e)
         {
             var b = ((ChromiumWebBrowser)sender);
+            ICookieManager man = webBrowser.GetCookieManager(null);
+
 
             //            this.InvokeOnUiThreadIfRequired(() => b.Focus());
         }

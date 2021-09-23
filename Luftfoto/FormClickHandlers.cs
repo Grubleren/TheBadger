@@ -172,8 +172,8 @@ namespace JH.Applications
             writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat));
             writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng));
             writer.Close();
-            Trace.WriteLine(string.Format(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat)));
-            Trace.WriteLine(string.Format(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng)));
+            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat));
+            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng));
         }
 
         private void button8_Click(object sender, EventArgs e)  // calibrate sw
@@ -188,8 +188,8 @@ namespace JH.Applications
             writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat));
             writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng));
             writer.Close();
-            Trace.WriteLine(string.Format(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat)));
-            Trace.WriteLine(string.Format(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng)));
+            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat));
+            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng));
         }
 
         private void button9_Click(object sender, EventArgs e)

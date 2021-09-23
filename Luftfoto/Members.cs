@@ -93,5 +93,7 @@ namespace JH.Applications
         List<double[]> batchCoordinates;
         bool batchProcessing;
         string queryString;
+        double avgCircle;
+        double avgTimePerDownload;
     }
 }

@@ -34,6 +34,23 @@ namespace JH.Applications
             public string hyperLink;
         }
 
+        void InitializeChromium()
+        {
+            CefSettings settings = new CefSettings();
+            string path = Path.GetFullPath(".");
+            settings.RemoteDebuggingPort = 8080;
+            settings.CachePath = path;
+
+            //Initialize Cef with the provided settings
+            Cef.Initialize(settings);
+            settings.PersistSessionCookies = true;
+
+            //Create a browser component
+            webBrowser = new ChromiumWebBrowser("");
+            Controls.Add(webBrowser);
+            SetupWebbrowser();
+        }
+
         void SetupWebbrowser()
         {
             webBrowser.Size = new Size(1000, 555);
@@ -87,6 +104,7 @@ namespace JH.Applications
             label7.Text = "";
             label8.Text = "";
             label9.Text = "";
+            label11.Text = "";
             button5.Enabled = false;
             button14.Enabled = false;
         }
@@ -94,6 +112,7 @@ namespace JH.Applications
         void SetupFilePaths()
         {
             projectFolder = @"..";
+            Trace.Listeners.Add((new MyTraceListener(new StreamWriter(projectFolder + @"\log.log"))));
 
             tokenPath = projectFolder + @"\dataforsyningToken.txt";
             if (File.Exists(tokenPath))
@@ -122,8 +141,8 @@ namespace JH.Applications
                 deltaLng = double.Parse(reader.ReadLine(), CultureInfo.InvariantCulture);
                 reader.Close();
                 Trace.WriteLine("Map calibration:");
-                Trace.WriteLine(string.Format(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat)));
-                Trace.WriteLine(string.Format(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng)));
+                Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat));
+                Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng));
 
             }
             else
@@ -156,7 +175,6 @@ namespace JH.Applications
             linkLabel3.Text = luftfoto + ext;
             linkLabel1.Text = sortedResult + exttxt;
 
-            Trace.Listeners.Add((new MyTraceListener(new StreamWriter(projectFolder + @"\log.log"))));
             if (File.Exists(projectFolder + @"\verbose.log"))
                 Trace.Listeners.Add((new MyTraceListener(new StreamWriter(projectFolder + @"\verbose.log"))));
         }
