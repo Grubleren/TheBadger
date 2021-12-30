@@ -11,8 +11,15 @@ namespace JH.Applications
         protected string[] key;
         public List<string> dataList;
 
-        public Dataforsyning(string type, string koordinat, int circle, string token, WebClient client)
+        public Dataforsyning(string type, string koordinat, ref int circle, ref int circleCount, string token, WebClient client)
         {
+            int c1=0;
+            int c0=0;
+            int c=0;
+            int cold=0;
+            int cwidth=0;
+            int len=0;
+            string[] splitold = new string[0];
             try
             {
                 string uri = "https://api.dataforsyningen.dk/" + type + "/?cirkel=" + koordinat + "," + circle.ToString() + "&format=csv&token=" + token;
@@ -46,9 +53,47 @@ namespace JH.Applications
                 }
                 database = database.Replace("\n", "");
                 string[] split = database.Split(new char[] { '\r' });
-                dataList = new List<string>();
-                if (split == null || split.Length == 2)
+                len = split.Length;
+                if (split == null || len == 2)
                     return;
+                if (type == "adresser")
+                {
+                    Trace.WriteLine(string.Format("Circle: {0}   len: {1}", circle, len));
+                    c1 = circle;
+                    c0 = 0;
+                    c = (int)Math.Round((double)(c1 + c0) / 2);
+                    cwidth = c1 - c0;
+                    splitold = split;
+                    cold = c;
+                    len = split.Length;
+                    while (cwidth > 1 && cold >= 1)
+                    {
+                        uri = "https://api.dataforsyningen.dk/" + type + "/?cirkel=" + koordinat + "," + c.ToString() + "&format=csv&token=" + token;
+                        database = client.DownloadString(uri);
+                        database = database.Replace("\n", "");
+                        split = database.Split(new char[] { '\r' });
+                        len = split.Length;
+                        if (len < 3)
+                        {
+                            c0 = c;
+                        }
+                        else
+                        {
+                            splitold = split;
+                            cold = c;
+                            circleCount = len - 2;
+                            c1 = c;
+                        }
+                        cwidth = c1 - c0;
+                        c = (c1+c0) / 2;
+                    }
+
+                    split = splitold;
+                    c = cold;
+                    circle = c;
+                    Trace.WriteLine(string.Format("Circle: {0}   len: {1}", c, len));
+                }
+                dataList = new List<string>();
                 key = split[0].Split(new char[] { ',' });
                 string[] data = split[split.Length - 2].Split(new char[] { '\"' });
                 for (int i = 0; i < data.Length; i++)
@@ -67,15 +112,18 @@ namespace JH.Applications
             }
             catch (Exception e)
             {
-
+                Trace.WriteLine("Type: " + type);
+                Trace.WriteLine(string.Format("c1: {0}  c0: {1}  c: {2}  cold: {3}  cwidth: {4}  len: {5}  splitold: {6}", c1, c0, c, cold, cwidth, len, splitold.Length));
+                Trace.WriteLine(e.StackTrace);
+                throw new InvalidProgramException("Dataforsyning problem");
             }
         }
     }
 
     public class DataforsyningAdresser : Dataforsyning
     {
-        public DataforsyningAdresser(string type, string koordinat, int circle, string token, WebClient client)
-            : base(type, koordinat, circle, token, client)
+        public DataforsyningAdresser(string type, string koordinat, ref int circle, ref int circleCount, string token, WebClient client)
+            : base(type, koordinat, ref circle, ref circleCount, token, client)
         {
         }
 
@@ -244,8 +292,8 @@ namespace JH.Applications
 
     public class DataforsyningSteder : Dataforsyning
     {
-        public DataforsyningSteder(string type, string koordinat, int circle, string token, WebClient client)
-            : base(type, koordinat, circle, token, client)
+        public DataforsyningSteder(string type, string koordinat, int circle, int circleCount, string token, WebClient client)
+            : base(type, koordinat, ref circle, ref circleCount, token, client)
         {
         }
 

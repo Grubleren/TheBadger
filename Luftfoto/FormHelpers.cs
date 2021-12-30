@@ -10,6 +10,7 @@ using CefSharp.WinForms;
 using CefSharp;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Threading;
 
 namespace JH.Applications
 {
@@ -181,8 +182,11 @@ namespace JH.Applications
 
         void FormMain_SizeChanged(object sender, EventArgs e)
         {
+            if (!enableChangeSize)
+                return;
             try
             {
+                Trace.WriteLine("FormMain_SizeChanged");
                 Size size = this.Size;
                 Trace.WriteLine("Form width: " + size.Width.ToString());
                 Trace.WriteLine("Form height: " + size.Height.ToString());
@@ -201,12 +205,12 @@ namespace JH.Applications
                 Trace.WriteLine(string.Format("zoom: {0}", zoom));
                 Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "lat: {0}", lat));
                 Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "lng: {0}", lng));
-                Trace.WriteLine(string.Format(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat)));
-                Trace.WriteLine(string.Format(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng)));
+                Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "deltaLat: {0:0.000000}", deltaLat));
+                Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "deltaLng: {0:0.000000}", deltaLng));
             }
-            catch
+            catch(Exception e1)
             {
-
+                Trace.WriteLine(e1.StackTrace);
             }
         }
 
@@ -214,7 +218,7 @@ namespace JH.Applications
         {
             if (e.IsLoading)
                 return;
-
+            Trace.WriteLine("Navigated");
             string url = webBrowser.GetMainFrame().Url;
             if (url.Contains("kb.dk"))
             {
@@ -243,6 +247,8 @@ namespace JH.Applications
                 }
             }
             addToUrlHistory = true;
+            Trace.WriteLine("Do SizeChanged");
+            FormMain_SizeChanged(null, new EventArgs());
             Trace.WriteLine("KB server up and running");
         }
 
@@ -263,6 +269,7 @@ namespace JH.Applications
             catch (Exception e)
             {
                 kbdbObjects = null;
+                Trace.WriteLine(e.StackTrace);
             }
             return kbdbObjects;
         }
@@ -341,7 +348,7 @@ namespace JH.Applications
                     HtmlElement ele = doc.GetElementById("search-form");
                     f = ele.GetElementsByTagName("input");
                 }
-                catch (Exception e)
+                catch
                 {
                     queryFailure = true;
                     Trace.WriteLine("Trying to get query, cnt: " + cnt.ToString());
@@ -484,8 +491,21 @@ namespace JH.Applications
 
         void BrowserCenter(out int zoom, out double lat, out double lng)
         {
-            string docUrl = webBrowser.GetMainFrame().Url;
+            Trace.WriteLine("BrowserCenter");
+            string docUrl ="";
+            int count = 0;
+            int countMax = 25;
+            while (docUrl == "" && count < countMax)
+            {
+                docUrl = webBrowser.GetMainFrame().Url;
+                Thread.Sleep(100);
+                count++;
+            }
 
+            if (count >= countMax)
+                throw new InvalidProgramException("Could not resize, give up");
+
+            Trace.WriteLine(string.Format("BrowserCenter got URL trying {0} times", count));
             int i0 = docUrl.IndexOf("zoom=") + 5;
             docUrl = docUrl.Substring(i0);
             int i1 = docUrl.IndexOf("&");

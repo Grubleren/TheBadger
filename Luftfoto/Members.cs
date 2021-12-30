@@ -16,7 +16,7 @@ namespace JH.Applications
         string projectFolder;
         string resultFolder;
         string resultFile;
-        string esultSortedFile;
+        string resultSortedFile;
         string photoPath;
         StreamWriter resultFileWriter;
         StreamWriter resultFileSortedWriter;
@@ -35,6 +35,7 @@ namespace JH.Applications
         double deltaLat = 300;
         double deltaLng = 1360;
         Size sizeWebBrowserBefore;
+        bool enableChangeSize;
         List<ItemList> resultList;
         ItemList itemList;
         string lastUrlPath;
@@ -51,6 +52,7 @@ namespace JH.Applications
         int startExt;
         int circle;
         int maxCircle;
+        int circleCount;
         string results = "Results";
         string luftfoto = "Luftfoto";
         string searchResult = "SearchResult";

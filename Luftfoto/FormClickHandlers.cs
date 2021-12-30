@@ -172,8 +172,8 @@ namespace JH.Applications
             writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat));
             writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng));
             writer.Close();
-            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat));
-            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng));
+            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "deltaLat: {0:0.000000}", deltaLat));
+            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "deltaLng: {0:0.000000}", deltaLng));
         }
 
         private void button8_Click(object sender, EventArgs e)  // calibrate sw
@@ -188,8 +188,8 @@ namespace JH.Applications
             writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat));
             writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng));
             writer.Close();
-            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLat));
-            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0:0.000000}", deltaLng));
+            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "deltaLat: {0:0.000000}", deltaLat));
+            Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "deltaLng: {0:0.000000}", deltaLng));
         }
 
         private void button9_Click(object sender, EventArgs e)
@@ -229,9 +229,10 @@ namespace JH.Applications
                 circle = int.Parse(textBox5.Text);
                 Trace.WriteLine("Circle changed, circle: " + circle.ToString());
             }
-            catch
+            catch(Exception e1)
             {
                 Trace.WriteLine("Parse error when parsing max circle");
+                Trace.WriteLine(e1.StackTrace);
             }
 
         }
